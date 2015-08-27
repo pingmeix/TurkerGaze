@@ -10,15 +10,11 @@
 </head>
 
 <body>
-<!-- <div id="all"> -->
-<!-- div: normal mode hit preview -->
-
 
 <table id="content" style="display: none;">	
 	<tr>
 		<td>
 		<!-- HIT summary -->
-		<!-- <p id="hitsummary" style="display: none;">This HIT offers a bonus based on your points in the game. To get points, you need to: </br>(1) stare at birds and pigs, and (2) remember photos that you see.</p> -->
 		<p id="hitsummary" style="display: none;">To get a higher score, you need to: </br>(1) stare at birds and pigs, and (2) remember photos that you see.</p>
 		</td>
 	</tr>
@@ -39,9 +35,6 @@
 		</td>
 	</tr>
 </table>
-
-<!-- <div id="fscontent"> -->
-<!-- div: full screen experiment -->
 
 <!-- canvas -->
 <!-- experiment interface -->
@@ -264,12 +257,9 @@ function checkInstrImgLoading(){
 }
 
 // preloading hit images and memory images
-// var hitimgs = new Array(imgpaths.length);
 function preloadHitImgs(idx){
 	if(idx >= imgpaths.length){
-		// $("#instrmsgP").html(instrMsg.loadicon);
 		createInstrImgSection();
-		// console.log('idx =' + idx);
 		return;
 	}
 	hitimgs[idx] = new Image();
@@ -302,22 +292,11 @@ var cageimg;
 function preloadGrayPigs(idx){
 	if(idx >= graypigs.length){
 		cageimg = graypigset.pop();
-		// $("#instrmsgP").html(instrMsg.loadimg);
-		// console.log('OKLoad = '+OKLoad);
-		// if(experimentId == '777'){ 
-
-			// markmark 2
-			// checkOKLoading();
 			if (imagehit){
 				preloadHitImgs(0);	
 			}else if(videohit){
 				createInstrImgSection();
 			}
-
-
-		// }else{
-		// 	preloadHitImgs(0);	
-		// }
 		return;
 	}
 	graypigset[idx] = new Image();
@@ -349,12 +328,7 @@ function preloadPigs(idx){
 var iconset = new Array(icons.length);
 function preloadIcons(idx){
 	if(idx >= icons.length){
-		// $("#instrmsgP").html(instrMsg.loadpig);
-
-		// markmark 1
-		// preloadPigs(0);
 		checkOKLoading();
-
 
 		return;
 	}
@@ -398,7 +372,6 @@ function checkFontPreloader(){
 	fontPreloaderRequest = requestAnimationFrame(checkFontPreloader);
 	if(FONTLOADED){
 		cancelAnimationFrame(fontPreloaderRequest);
-		// $("#instrmsgP").html(instrMsg.loadbird);
 		drawslider(100, 10); // draw progress bar
 		preloadIcons(0);
 	}
@@ -577,7 +550,6 @@ function enterFullScreen(){
 function checkFullscreenOn(){
 	checkFullscreenOnRequest = requestAnimFrame(checkFullscreenOn);
 	if(window.innerHeight != screen.height){
-	// if(window.outerHeight != screen.height){
 		$(document).unbind(); // unbind key press event
 		cancelRequestAnimFrame(checkFullscreenOnRequest);
 		if (!EXPERIMENT_END && !KEY_DOWN){
@@ -768,7 +740,6 @@ function facialLdmkTrackingDisplay(){
 		}
 	}
 	if(validldmk){
-		// showInstrMsg(statusMsg.clickrestart,"#statusmsgP", sW, sH-showH+cvsshift);
 		$("#statusmsgP").html(statusMsg.clickrestart);
 		if(DISPLAYON == false && DISPLAYDOTON == false && ABTEST == false){
 			if($('#start').attr('disabled') == "disabled"){
@@ -787,7 +758,6 @@ function facialLdmkTrackingDisplay(){
 			$('#start').css( "color", '#eeeeee');
 			$('#start').css( "backgroundColor", disableBttnColor);
 		}
-		// showInstrMsg(msg, "#statusmsgP", sW, sH-showH+cvsshift);
 		$("#statusmsgP").html(msg);
 	}
 	$("#statusmsgP").css({'left': (sW-$("#statusmsgP").width())/2});
@@ -882,7 +852,6 @@ function startTask(){
 	if (TEST_STABILIZATION){
 		$('#opticalflow').show();
 		ofCanvas = document.getElementById('opticalflow');
-		// displayElm2Center('#opticalflow', sW, 0);
 		ofCanvas.style.position = "absolute";
 		displayElm2Center('#opticalflow', sW, sH+cvsshift-200);
 		ofCtx = ofCanvas.getContext('2d');
@@ -928,11 +897,9 @@ function ldmktracking(){
     if (lastFrameTimeTrck == null) { lastFrameTime = time;}
     if (time - lastFrameTimeTrck <= trckInterval) return; // control frame rate: 25 ms per frame
     lastFrameTimeTrck = time;
-
-	// var t4 = new Date().getTime();
+	
 	trackCanvasCtx.drawImage(streamVideo, 0, 0, trckW, trckH) // rescale the image
 	ctrackr.trackFrame(trackCanvas); // tracking
-	// console.log('Face tracking: ' + (new Date().getTime()-t4)+'ms')
 }
 
 function drawstabilization(){
@@ -945,9 +912,7 @@ function drawstabilization(){
 	var positions = ctrackr.getCurrentPosition();
 	if(positions){
 		hdCanvasCtx.drawImage(streamVideo,0,0,hdW,hdH); // hd image
-		// var midpoint = opticlflw.getmidpoint(positions, hdCanvasCtx, hdW, hdH);
 		var midpoint = opticlflw.getmidpoint(positions, trackCanvasCtx, trckW, trckH);
-		// console.log('L:' + midpoint[0].map(Math.round) + '  R:' + midpoint[1].map(Math.round));
 
 		// without stabilization
 		var curr_pos = [[0,0],[0,0]];
@@ -960,11 +925,9 @@ function drawstabilization(){
 	    	curr_pos[e][0] /= opticlflw_mp_idx[0].length;
 	    	curr_pos[e][1] /= opticlflw_mp_idx[0].length;
 	    }
-		
+		// optical flow
 		var imgdata = new Array(2);
-		for(var e = 0; e < 2; e++){
-			// optical flow
-			// imgdata[e] = hdCanvasCtx.getImageData(midpoint[e][0] - (patchsize[0]-1)/2, midpoint[e][1] - (patchsize[1]-1)/2, patchsize[0], patchsize[1]);
+		for(var e = 0; e < 2; e++){			
 			// original ldmk
 			imgdata[e] = hdCanvasCtx.getImageData(curr_pos[e][0] - (patchsize[0]-1)/2, curr_pos[e][1] - (patchsize[1]-1)/2, patchsize[0], patchsize[1]);
 		}
@@ -1001,7 +964,6 @@ function drawstabilization(){
 		for(var e = 0; e < 2; e++){
 			ofCtx.putImageData(imgdata[e], (w/2-patchsize[0])/2+(ofCanvas.width)/2*e+(ofCanvas.width-w)/2*(1-e), (h+patchsize[1]+4)/2); 
 		}
-		// console.log('Fixed L:' + bfpos[0].map(Math.round) + '  R:' + bfpos[1].map(Math.round));
 
 		// test fixed position
 		if(jittercnter == -1){
@@ -1107,34 +1069,6 @@ function display(sequence){
 	switch(entry.type){
 		case "point":
 			postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'calibration point, x:' + entry.location[0] + ' y:' + entry.location[1] + ';');
-			// still circle
-			/*
-			ctx.fillStyle = pointBckColor;
-			ctx.fillRect(0,0,sW,sH);
-			var px = entry.location[0]*sW, py = entry.location[1]*sH, pr = pointRadius;
-			drawCircle(ctx, px, py, pr, pointColor, true);
-			curposdisplay++;
-			setTimeout(function(){display(sequence);}, entry.duration);
-			*/
-			// changing size circle
-			/*
-			var step = 30; // step size (ms)
-			var duration = sequence[curposdisplay].duration+sequence[curposdisplay+1].duration;
-			var ratio = sequence[curposdisplay+1].duration/duration;
-			var px = entry.location[0]*sW, py = entry.location[1]*sH;
-			var pr_mid = (pointRadius-pointRadiusMid)*ratio+pointRadiusMid;
-			curposdisplay++;
-			DISPLAYDOTON = true;
-			
-			drawDynamicCirc(sW, sH, ctx, px, py, pointBckColor, pointColor, duration*(1-ratio), pointRadius, pr_mid, step, function(){
-				curposdisplay++;
-			drawDynamicCirc(sW, sH, ctx, px, py, pointBckColor, pointColor, duration*ratio, pr_mid, pointRadiusMid, step, function(){
-				display(sequence); 
-				DISPLAYDOTON = false;
-			});
-			});	*/
-			
-			// icon image + changing size circle
 
 			var step = 30; // step size (ms)
 			var duration = sequence[curposdisplay].duration+sequence[curposdisplay+1].duration;
@@ -1246,7 +1180,6 @@ function display(sequence){
 			curposdisplay++;
 			$('#fullscreen').hide();
 			$('#fsoverlay').hide();
-			// $('svg').css('cursor','none');
 			$('body').css('cursor','none');
 
 
@@ -1603,7 +1536,6 @@ function VideoRecorder(mediaStream,width,height) {
 			// check the validity of current landmark positions and temporal chagne
 			var msg = checkLdmkValidity(positions);
 			if (msg != ''){ // stop recorder
-				// console.log(msg);
 				if (lastAnimationFrame){
 					cancelAnimationFrame(lastAnimationFrame);
 				}
@@ -1638,7 +1570,6 @@ function VideoRecorder(mediaStream,width,height) {
 					return;
 				}
 			}
-			// console.log('Check: ' + (new Date().getTime()-t6)+'ms')
 
 			var feature = {"type":"colorhist", "value":null, "entryidx":curposdisplay-1};
 			var eyeloc = [[0,0],[0,0]];
