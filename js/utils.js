@@ -1,3 +1,43 @@
+/*-------------------- enter full screen --------------------*/
+// toggle a div to fullscreen model
+function toggleFullScreenOnEle(ele){
+    elem = document.getElementById(ele);
+    if (elem.requestFullscreen){
+        elem.requestFullscreen();
+    } else if (elem.msRequestFullscreen){
+        elem.msRequestFullscreen();
+    } else if (elem.mozRequestFullScreen){
+        elem.mozRequestFullScreen();
+    } else if (elem.webkitRequestFullscreen){
+        elem.webkitRequestFullscreen();
+    }
+}
+// for full screen
+function RunPrefixMethod(obj, method) {
+    var p = 0, m, t;
+    while (p < pfx.length && !obj[m]) {
+        m = method;
+        if (pfx[p] == "") {
+            m = m.substr(0,1).toLowerCase() + m.substr(1);
+        }
+        m = pfx[p] + m;
+        t = typeof obj[m];
+        if (t != "undefined") {
+            pfx = [pfx[p]];
+            return (t == "function" ? obj[m]() : obj[m]);
+        }
+        p++;
+    }
+}
+// toggle to normal size
+function toggleFullScreen(){
+    if (RunPrefixMethod(document, "FullScreen") || RunPrefixMethod(document, "IsFullScreen")) {
+        RunPrefixMethod(document, "CancelFullScreen");
+    }
+    else {
+        RunPrefixMethod(document.getElementById("fullscreen"), "RequestFullScreen");
+    }
+}
 /*-------------------- get parameter from URL --------------------*/
 function getURLParameter(VarSearch, defaultval){
     var SearchString = window.location.search.substring(1);
@@ -330,3 +370,261 @@ function nchoosekRandom(n, k){
     }
     return loc;
 }
+
+// bilateral filter
+function bilateralFilter(queue, cnt, para){
+    var base = new Array(2);
+    for(var e = 0; e < 2; e++) {
+        base[e] = new Array(2); 
+        for(var i = 0; i < 2; i++){
+            base[e][i] = queue[0][e][i];
+        }
+    }
+    if(cnt == 1) return base;
+
+    var pos = new Array(2);
+    var normW = new Array(2);
+    for(var e = 0; e < 2; e++) {
+        normW[e] = 0;
+        pos[e] = new Array(2);
+        for(var i = 0; i < 2; i++){
+            pos[e][i] = 0;
+        }
+    }
+    for(var k = 0; k < cnt; k++){
+        for(var e = 0; e < 2; e ++){
+            var w = Math.exp(- k*k/para.sigma_t - 
+                (Math.pow(base[e][0]-queue[k][e][0],2)+Math.pow(base[e][1]-queue[k][e][1],2))/para.sigma_pos);
+            normW[e] += w;
+            for(var i = 0; i < 2; i++){
+                pos[e][i] += w*queue[k][e][i];
+            }
+        }
+    }   
+    for(var e = 0; e < 2; e++){
+        for(var i = 0; i < 2; i++){
+            pos[e][i] /= normW[e];
+        }
+    }
+    return pos;
+}
+
+function computeAverageIntensity(ctx, x, y, w, h){
+    var imageData = ctx.getImageData(x, y, w, h);
+    var pixels = imageData.data;
+    var meanval = 0;
+    for(var i = 0; i < w*h; i++){
+        meanval += pixels[i*4];
+        meanval += pixels[i*4+1];
+        meanval += pixels[i*4+2];
+    }
+    return meanval/(w*h*3);
+}
+/*-------------------- what-a-mole --------------------*/
+// compute the coordinates of grids
+function getmolegridloc(x, y, size, grids, spacing){
+  var numy = grids[0];
+  var numx = grids[1];
+  var w = size[1], h = size[0];
+  var loc = new Array(numy); // one row
+  for(var i = 0; i < numy; i++){
+    loc[i] = new Array(numx);
+    for(var j = 0; j < numx; j++){
+      loc[i][j] = new Array(2);
+      loc[i][j][0] = y + i*spacing + i*h;
+      loc[i][j][1] = x + j*spacing + j*w;
+    }
+  }
+  return loc;
+}
+
+
+// hit a mole
+function hitmole(){
+    if (!MOLETEST) return;
+    if (molehitcount >= molehitmax){
+        
+        molehitcount = 0;
+        airmole.remove();
+        cntmole--;
+        moleNumber.updateNum(cntmole);
+        if (cntmole > 0){
+            startwhacamole();
+        }else{
+            molestarttime = null;
+            svgpaper.remove();
+            $('#fullscreen').show();
+            $('#fsoverlay').show();
+            display(expsequence); // passed the test
+        }
+    }else{
+        // find grid index
+        var gi = -1, gj = -1;
+        for (var i = 0; i < moleloc.length; i++){
+            if (gi > 0){
+                break;
+            }
+            for (var j = 0; j < moleloc[i].length; j++){
+                x = moleloc[i][j][1]+homesize/2, y = moleloc[i][j][0]+homesize/2;
+                if( Math.abs(curmousepos[0]-y) <= homesize/2 && Math.abs(curmousepos[1]-x) <= homesize/2){
+                    gi = i;
+                    gj = j;
+                    molehomeobj[i][j].attr("fill", "red");
+                }else{
+                    molehomeobj[i][j].attr("fill", "green");
+                }
+            }
+        }
+        if (gi == curmoleidx[0] && gj == curmoleidx[1]){
+            molehitcount++;
+        }else{
+            molehitcount = 0;
+        }
+        setTimeout(function(){hitmole();}, 10);
+    }
+}
+
+function drawTimeController(height, width, length){
+    var backBar = svgpaper.rect(20, height, length, width, 0);
+    backBar.attr({
+        fill: 'darkred'
+    });
+    var timeBar = svgpaper.rect(20, height, length, width, 0);
+    timeBar.attr({
+       fill: 'green'
+    });
+    var timeLeft = svgpaper.text(20 + length + 10, height + 15, gameTotalTime/1000 + " seconds")
+                    .attr({
+                        fill: "white",
+                        stroke: "white"
+                    });
+
+    var setTimeout = function(millsec){
+        timeBar.animate({
+            width: 0,
+            x: 20 + length
+        }, millsec);
+
+        Snap.animate(millsec, 0, function(value){
+            timeLeft.attr({
+                text: Math.ceil(value/1000) + ' seconds'
+            });
+        }, millsec);
+    }
+    return {
+        setTimeout: setTimeout
+    }
+}
+
+function drawMoleStatus(width, height, number){
+    var numLeft = svgpaper.text(width, height + 15, number + " Left")
+                    .attr({
+                        fill: "white",
+                        stroke: "white",
+                        'text-anchor': "end"
+                    });
+    var updateNum = function(num){
+        numLeft.attr('text', num + " Left")
+    }
+    return {
+        updateNum: updateNum
+    }
+}
+
+
+// draw a mole
+function drawmole(x, y, loc, size, idx, r1, r2) {
+    var PATHS = [
+        'M0,0c0,0,0-28.008,0-46.707S0-130,0-130'
+    ];
+
+    var i = idx[0],
+        j = idx[1];
+    var group = svgpaper.g();
+    var path = svgpaper.path(PATHS[Math.floor(Math.random() * PATHS.length)]);
+    totalLength = path.getTotalLength();
+    path.attr({
+        fill: 'none',
+        stroke: "orange",
+        strokeWidth: 150,
+        strokeMiterlimit: 10,
+        strokeLinecap: 'round',
+        opacity: 1,
+        strokeDasharray: totalLength + " 200",
+        strokeDashoffset: totalLength
+    });
+
+    group.add(path);
+
+    group.transform("t" + [loc[i][j][1] + size / 2, loc[i][j][0] + size / 2]);
+
+    var mouth,
+        eye,
+        ey2;
+
+    var face = svgpaper.g();
+    face.attr({
+        'class': 'face animating'
+    });
+
+    mouth = svgpaper.circle(0, 5, 6);
+    mouth.attr({
+        fill: 'white',
+        'class': 'mouth'
+    });
+    face.add(mouth);
+
+    eye = svgpaper.path('M-2.75-6.75c0,0-2.537,2.5-5.667,2.5s-5.667-2.5-5.667-2.5s2.537-2.5,5.667-2.5S-2.75-6.75-2.75-6.75z');
+    eye.attr({
+        fill: '#555555',
+        'class': 'eye left'
+    });
+    face.add(eye);
+
+    eye2 = svgpaper.path('M14.583-6.75c0,0-2.537,2.5-5.667,2.5S3.25-6.75,3.25-6.75s2.537-2.5,5.667-2.5S14.583-6.75,14.583-6.75z');
+    eye2.attr({
+        fill: '#555555',
+        'class': 'eye right'
+    });
+    face.add(eye2);
+
+    face.transform("s2");
+    group.add(face);
+
+    var point = path.getPointAtLength(this.totalLength - 0);
+
+    // track mouse position
+    path.animate({
+        strokeDashoffset: 0
+    }, 500);
+
+    face.animate({transform: 't'+[point.x,point.y] + "s2"},500);
+
+    $('svg').on("mousemove", function(e) {
+        curmousepos = [e.pageY, e.pageX];
+    });
+    hitmole();
+
+    return group;
+}
+
+
+// start to draw mole
+function startwhacamole(){
+    curmoleidx = [Math.floor(Math.random()*nummole[0]), Math.floor(Math.random()*nummole[1])];
+    airmole = drawmole(molex, moley, moleloc, homesize, curmoleidx, 0, 80);
+}
+
+// draw rectangles on the grids
+function drawmolehome(loc, size, r, color){
+    var svgobj = new Array(loc.length);
+    for (var i = 0; i < loc.length; i++){
+        svgobj[i] = new Array(loc[i].length);
+        for (var j = 0; j < loc[i].length; j++){
+            svgobj[i][j] = svgpaper.rect(loc[i][j][1], loc[i][j][0], size, size, r);
+            svgobj[i][j].attr("fill", color);
+        }
+    }
+    return svgobj;
+}
+

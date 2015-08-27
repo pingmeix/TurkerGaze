@@ -1,5 +1,4 @@
 body {
-	/*font-family: Courier New, monospace;*/
 	font-family:'Lucida Grande', Helvetica, Arial, Verdana, sans-serif;
 	color: #000000;
 	background-color: #FFFFFF;
@@ -9,41 +8,25 @@ body {
 	min-height:700px; 
 	cursor: auto;	
 }
-@font-face {
-    font-family: lcd;
-    src: url(./lcd.ttf);
-}
-@font-face {
-    font-family: digital;
-    src: url(./digital.ttf);
-}
-@font-face {
-    font-family: zorque;
-    src: url(./zorque.ttf);
-}
-
 /*button*/
 button{
 	position: absolute;
 	height: 50px;
-	font-size: 25px;
+	font-size: 20px;
 	font-weight: bold;
-	/*font-family: Courier New,monospace;*/
 	font-family:'Lucida Grande', Helvetica, Arial, Verdana, sans-serif;
 	color: #424242;
 	border-style: none;
-	border-radius: 15px;
+	border-radius: 10px;
 	cursor:pointer;
 	outline: 0;
 }
-
 button:hover{
 	color: #e0e0e0;
 	background-color:#3399FF;
 }
 #copylinkButton, #fullscreenButton{
 	background-color:#0091EA;
-	/*position: absolute;*/
 }
 #reTrack{
 	background-color:#FF4455;
@@ -85,17 +68,6 @@ p{
 	border-style: solid;
 	-webkit-border-radius: 10px;
 }
-/*#fscontent{
-	margin: auto;
-	width: 100%;
-	height: 100%;
-	position: relative;
-}
-#fullscreen, #fsoverlay{
-	margin-left: auto;
-    margin-right: auto;	
-    position: absolute;
-}*/
 #hitsummary{
 	-webkit-border-radius: 10px;
 	position: relative;
@@ -120,7 +92,6 @@ p{
 	margin-top: 0;
 	margin-bottom: 0;
 }
-
 #gamelogo{
 	position: relative;
 	width: 60%;
@@ -133,9 +104,9 @@ p{
 
 #fullscreenButton{
 	position: relative;
-	width: 370px;
+	width: 220px;
 	left: 50%;
-	margin-left: -185px;
+	margin-left: -100px;
 	margin-bottom: 20px; 
 	margin-top: 10px;
 }
@@ -180,7 +151,6 @@ p{
 }
 
 /* memory test */
-
 #memmark{
 	opacity:0.85;
 	font-family: zorque;
@@ -263,46 +233,6 @@ p{
 	margin: 0;
 	border: 0 none;
 }
-
-/*#fscontent:-webkit-full-screen
-{
-	float: none;
-	width: 100%;
-	height: 100%;
-	padding: 0;
-	margin: 0;
-	border: 0 none;
-	background-color: #f00;
-}
-#fscontent:full-screen
-{
-	float: none;
-	width: 100%;
-	height: 100%;
-	padding: 0;
-	margin: 0;
-	border: 0 none;
-}*/
-
-/*#fsoverlay:-webkit-full-screen, #fscontent:-webkit-full-screen
-{
-	float: none;
-	width: 100%;
-	height: 100%;
-	padding: 0;
-	margin: 0;
-	border: 0 none;
-	background-color: #f00;
-}
-#fsoverlay:full-screen,  #fscontent:full-screen
-{
-	float: none;
-	width: 100%;
-	height: 100%;
-	padding: 0;
-	margin: 0;
-	border: 0 none;
-}*/
 
 @-webkit-keyframes FadeInOut4 {
 0% {opacity:1;}

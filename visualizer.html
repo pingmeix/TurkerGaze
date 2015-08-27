@@ -1,33 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>PV GazeVisualizer</title>
-	<link rel="stylesheet" type="text/css" href="../styles/main.css">
+	<title>Gaze Visualization</title>
+	<meta name="description" content="Visualization for PU web browser based gaze tracking"/>
+	<meta name="keywords" content="gaze, eye tracking, webcam, HCI, crowdsourcing, computer vision" />
+	<meta name="author" content="Pingmei Xu"/>
+	<meta name="owner" content="Princeton Vision Group"/>
+	<link rel="shortcut icon" href="./styles/logo/pu_logo.png"/>
+	<link rel="stylesheet" type="text/css" href="./styles/main.css">
 	<style type="text/css">
-	body{
-
-	}
-	#files{
-		position: absolute;
-		font-size: 15px;
-	}
-	form{
-		position: absolute;
-	}
-	button{
-		position: absolute;
-		font-size: 20px;
-		font-family: Courier New,monospace;
-		color: #FFFFFF;
-		background-color:#3399FF;
-		border-style: none;
-	}
-	button:hover{
-		color: #000000;
-	}
-	#imgCanvas, #overlay, #memtestinfo{
-		position: absolute;
-	}
+		#files{
+			position: absolute;
+			font-size: 15px;
+		}
+		form{
+			position: absolute;
+		}
+		button{
+			position: absolute;
+			font-size: 20px;
+			font-family: Courier New,monospace;
+			color: #FFFFFF;
+			background-color:#3399FF;
+			border-style: none;
+		}
+		button:hover{
+			color: #000000;
+		}
+		#imgCanvas, #overlay, #memtestinfo{
+			position: absolute;
+		}
 	</style>
 </head>
 
@@ -44,26 +46,13 @@ URL: <input type="text" name="url" id="urlText" size="100">
 
 <button id='drawBttn' onclick="draw()">draw</button>
 
-<canvas id="imgCanvas" width="1200" height="4000" style="display: none;"></canvas>	
-<canvas id="overlay" width="1200" height="4000" style="display: none;"></canvas>	
+<canvas id="imgCanvas" width="1200" height="1800" style="display: none;"></canvas>	
+<canvas id="overlay" width="1200" height="1800" style="display: none;"></canvas>	
 
-<script src="../js/jquery-1.11.0.min.js"></script>
+<script src="./js/lib/jquery-1.11.0.min.js"></script>
 
 <script>
-function getURLParameter(VarSearch, defaultval){
-    var SearchString = window.location.search.substring(1);
-    var VariableArray = SearchString.split('&');
-    for(var i = 0; i < VariableArray.length; i++){
-        var KeyValuePair = VariableArray[i].split('=');
-        if(KeyValuePair[0] == VarSearch){
-            return KeyValuePair[1];
-        }
-    }
-  return defaultval;
-}
-
 // global parameters
-var mode = getURLParameter('mode', 'dynamic');
 var imgCanvas, imgCanvasCtx, overlay, overlayCtx;
 var JsonObj = null;
 var saveQueue = null;
@@ -89,27 +78,6 @@ var gridx = 0, gridy = 0;
 var memtestscore;
 var hitimgs;
 var imggridloc = null;
-
-
-var gup_url = getURLParameter('url', '');
-if(gup_url != ''){
-	draw();
-}else{
-	gup_url = '';
-	var EXP_ID = getURLParameter('EXP_ID', '');
-	var HIT_ID = getURLParameter('HIT_ID', '');
-	var CLICK_ID = getURLParameter('CLICK_ID', '');
-	var JSGaze = eval(getURLParameter('JSGaze', false));
-	if (CLICK_ID != ''){
-		if (JSGaze){
-			gup_url = ['http://isun.cs.princeton.edu/mturkhit/' + HIT_ID + '/rawdata/' + CLICK_ID + '_result'];	
-		}else{
-			gup_url = ['http://isun.cs.princeton.edu/mturkhitresult/' + EXP_ID + '/' + HIT_ID + '/middata/' + CLICK_ID + '/prediction_new.json	'];	
-		}
-		draw();
-	}
-} 
-
 
 // center an element and display, [w,h]: size of the window
 var displayElm2Center = function(id, w, h){
@@ -171,15 +139,8 @@ function loadData(data){
 }
 
 function draw(){
-	if ($('#urlText').val() != "" || gup_url != ''){
-		var file_url;
-		if(gup_url == ''){
-		file_url = $('#urlText').val();
-		}else{
-			file_url = gup_url;
-		}
-		// file_url  = '../results/' + file_url;
-		$.getJSON(file_url, function(data) {
+	if ($('#urlText').val() != ""){
+		$.getJSON($('#urlText').val(), function(data) {
 			saveQueue = data;
 			visualizeResults();	
 		})
@@ -225,7 +186,6 @@ function visualizeResults(){
 		str += ' Train error:' + saveQueue[3].trainerr.toFixed(3) + '</br>';	
 		str += 'Screen size: ' + screenw + '*' + screenh + '; ';
 		str += 'Patch size: ' + (saveQueue[0].patchsize[0]+saveQueue[0].margin[0]) + '*' + (saveQueue[0].patchsize[1]+saveQueue[0].margin[1])  + '; ';
-		str += 'IP address:' + saveQueue[0].IPaddress;
 		$('#msg').html(str);
 		displayElm2Center('#msg', $(window).width(), 200);
 		$('#msg').show();
@@ -340,7 +300,6 @@ function drawCircle(ctx, x, y, r, linecolor, fill, color){
 	}
 }
 
-
 function visualizeMemoryTest(ctx, overlayctx){
 	var item = memActionQueue[0];
 	imgpaths = item.imgpaths;
@@ -370,7 +329,6 @@ function visualizeMemoryTest(ctx, overlayctx){
 	displayMemImages();
 }
 
-
 // draw a rounded corner rectangle
 function drawRoundCornerRect(ctx, x, y, w, h, color, width){
 	ctx.lineJoin = 'round';
@@ -387,7 +345,6 @@ function displayMemImages(){
 	hitimgs = new Array(imgpaths.length);
 	preloadHitImgs(0);
 }
-
 
 function preloadHitImgs(idx){
 	if(idx >= imgpaths.length){
@@ -415,7 +372,6 @@ function drawGridsImg(ctx, loc, size, imggrid){
 		}
 	}
 }
-
 
 // get coordinates of grids
 function getgridloc(x, y, size, grids, spacing){
@@ -458,8 +414,8 @@ function drawGrids(ctx, x, y, loc, size, sel, selans, color, selcolor, width, se
 </script>
 
 <script>
-setupcanvas();
-document.getElementById('files').addEventListener('change', handleFileSelect, false);
+	setupcanvas();
+	document.getElementById('files').addEventListener('change', handleFileSelect, false);
 </script>
 
 </body>
