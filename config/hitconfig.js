@@ -4,7 +4,6 @@ function countdownMsg(idx){
 }
 // 
 var typeset = ["point", "image", "cross", "message", "cntdown", "abtest", "video", "whacamole"]; 
-//{"point":0, "image":1, "cross":2, "message":3, "cntdown":4, "abtest":5, "video": 6, "whacamole":7}
 var tagset = ["train", "test", "blank"]; // {"train":0, "test":1, "blank":2}
 var maxscore = 0; 
 

@@ -1,3 +1,34 @@
+
+function getURLParameter(VarSearch, defaultval){
+    var SearchString = window.location.search.substring(1);
+    SearchString = SearchString.replace(/\%22/g, '"').replace(/'/g,"%27"); // url decoder
+    var VariableArray = SearchString.split('&');
+    for(var i = 0; i < VariableArray.length; i++){
+      var str = VariableArray[i];
+      var n = str.search('=');
+      if (str.substring(0, n) == VarSearch) {
+        return str.substring(n+1);
+      };
+    }
+  return defaultval;
+}
+
+
+// function URLdecode() {
+//   var obj = document.getElementById('dencoder');
+//   var encoded = obj.value;
+//   obj.value = decodeURIComponent(encoded.replace(/\+/g,  " "));
+// }
+
+// djb2Code = function(str){
+//     var hash = 5381;
+//     for (i = 0; i < str.length; i++) {
+//         char = str.charCodeAt(i);
+//         hash = ((hash << 5) + hash) + char; /* hash * 33 + c */
+//     }
+//     return hash;
+// }
+
 /*-------------------- monitor & download --------------------*/
 // download data to local file
 function saveToFile(data, filename){

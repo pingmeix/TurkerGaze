@@ -1,32 +1,3 @@
-function getURLParameter(VarSearch, defaultval){
-    var SearchString = window.location.search.substring(1);
-    SearchString = SearchString.replace(/\%22/g, '"').replace(/'/g,"%27"); // url decoder
-    var VariableArray = SearchString.split('&');
-    for(var i = 0; i < VariableArray.length; i++){
-      var str = VariableArray[i];
-      var n = str.search('=');
-      if (str.substring(0, n) == VarSearch) {
-        return str.substring(n+1);
-      };
-    }
-  return defaultval;
-}
-
-function URLdecode() {
-  var obj = document.getElementById('dencoder');
-  var encoded = obj.value;
-  obj.value = decodeURIComponent(encoded.replace(/\+/g,  " "));
-}
-
-djb2Code = function(str){
-    var hash = 5381;
-    for (i = 0; i < str.length; i++) {
-        char = str.charCodeAt(i);
-        hash = ((hash << 5) + hash) + char; /* hash * 33 + c */
-    }
-    return hash;
-}
-
 // debug
 // visualize optical flow results
 var TEST_STABILIZATION = eval(getURLParameter('cstabilize', false));
@@ -130,10 +101,6 @@ var optionColorhist = {"nbins":[[6,10]], "pw":mineyewHD, "ph":mineyehHD};
 var colorhist, colorhistmargin = 2.2; // histogram feature extractor
 
 // training, testing, raw data collector
-// sequence: {"type":"image", "path":imgpath,"duration":imgLen, "tag":'test'};
-// train/test/blank: {"type":"colorhist", "value":null, "entryidx":curposdisplay};
-// displayQueue: {'type':'train'/'test'/'blank, 'index': value}
-// detectQueue: 0/1, timeQueue: timestamp
 var trainQueue, testQueue, blankQueue, dataQueue, detectQueue, displayQueue, timeQueue;
 var resultQueue, saveQueue; // data to save
 var memActionQueue, pigQueue;
@@ -173,7 +140,6 @@ var CalbrPoints = [];
 var points;
 
 // duration of stages settings
-// var idleLen = 500, busyLen = 300, 
 var idleLen, busyLen; 
 var testLen = 3500, transLen = 500, imgLen = 3000, cntdownLen = 500, abtestLen = 10000; // duration of each type
 var whacamoleLen = 20000;
@@ -235,7 +201,6 @@ var margin_raw = [0,0]; // margin for cropping eye patch
 var eyepatchratio = 0.6; // aspect ratio for eye patch
 
 // memorability test
-// var mem_ans, mem_reply;
 var numgrids = [3, 5], gridsize = [210, 210], gridspacing = 10;
 var numshown = 3;
 var gridloc; // location of each image grid
@@ -251,7 +216,6 @@ var memtestStartTime = null;
 var memetesTimeLimit = 20000;
 var basemark = 500, basemarkpig = 500;
 var stepmark_catch = 5, stepmark_kill = 10;
-// var penaltymark = Math.floor(memetesTimeLimit/1000*stepmark);
 var penaltymark = 250;
 var MEMTESTON = false;
 var MEMTESTPREVIEW = false;
