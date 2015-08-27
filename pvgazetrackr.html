@@ -1727,7 +1727,6 @@ function onlineprediction(){
 function stop(){
 	$(document).unbind(); // unbind key press event
 	cancelRequestAnimFrame(checkFullscreenOnRequest);
-	// toggleFullScreen();
 	EXPERIMENT_END = true;
 	localStream.stop(); // stop web cam
 	estimategaze();	// gaze estimation
@@ -1899,30 +1898,7 @@ function memorytest(){
 	}, memetesTimeLimit);
 }
 
-function nchoosekRandom(n, k){
-	var idx = new Array(n);
-	var ind = new Array(n);
-	for(var i = 0; i < n; i++){
-		idx[i] = i;
-		ind[i] = false
-	} 
-	var loc = new Array(k);
-	for(var i = 0; i < k; i++){
-		var r = Math.floor(Math.random()*(n-i));
-		var cnt = -1;
-		for(var j = 0; j < n; j++){
-			if(ind[j] == false){
-				cnt++;
-				if(cnt == r){
-					ind[j] = true;
-					loc[i] = j;
-					break;
-				}
-			}
-		}
-	}
-	return loc;
-}
+
 
 function getPosition(event){
 	if(MEMTESTON == false) return;
@@ -2136,38 +2112,6 @@ function finishMemTest(){
 	$('#finishmemtestButton').hide();
 	senddata();
 }
-
-/*
-// monitor sending progress
-function showTransmitProgress(){
-	drawslider(1, 0); // draw progress bar
-	$("#slider").show()
-	monitorDownload(); 
-}
-
-// task is completed
-function complete(){
-	$('#slider').hide();
-	$('#eyeCanvas').hide();
-	
-	var str = resultmsg;
-	$('#instrmsgP').html(str);
-	$("#instrmsgP").css({"width":"520px","top":"20%","left":"50%", "margin-left":"-260px"});
-}
-
-// monitor sending progress
-function monitorDownload(){
-	var s = resultcarrier.progress();
-	var sraw = {"status":"Finished", "percent":100};
-	drawslider(100, Math.min(s.percent, sraw.percent)); // draw progress bar
-	// console.log(s);
-	if (s.status != 'Finished' || sraw.status != 'Finished' || scoreUpdate != true){
-		setTimeout(function(){monitorDownload();},sendinterval);
-	}else{
-		complete(); // task is completed
-	}
-}
-*/
 
 
 // download to local file
