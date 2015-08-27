@@ -18,27 +18,6 @@ function URLdecode() {
   obj.value = decodeURIComponent(encoded.replace(/\+/g,  " "));
 }
 
-/*
-function postErrMsg(folder, fname, cgiurl, msg){
-  var time = new Date().getTime();
-  msg = time.toString() + '@' + msg + '\n';
-  $.post(cgiurl,
-  {  
-    folder: folder,
-    file: fname,
-    data: msg,
-    mode: 'a'
-  },function(data){
-    try{
-      if(data != 'success'){
-        console.log('err msg uploading failed...')
-      }
-    }catch(err){
-      console.log('err msg uploading failed...')
-    }
-  });
-}
-*/
 djb2Code = function(str){
     var hash = 5381;
     for (i = 0; i < str.length; i++) {
