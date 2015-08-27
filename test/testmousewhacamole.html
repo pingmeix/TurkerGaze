@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="../styles/main.css">
+    <style type="text/css">
+    body {
+        margin: 0 0 0 0;
+    }
+
+    svg {
+        margin: 0 0 0 0;
+    }
+    </style>
+</head>
+
+<body>
+    <canvas id="fullscreen" style="display: none;"></canvas>
+    <button id="fullscreenButton" onclick="enterFullScreen();">Start Game</button>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="../js/snap.svg-min.js"></script>
+    <script type="text/javascript">
+    function enterFullScreen() {
+        toggleFullScreenOnEle("fullscreen");
+    }
+
+    function toggleFullScreenOnEle(ele) {
+        elem = document.getElementById(ele);
+        if (elem.requestFullscreen){
+          elem.requestFullscreen();
+        } else if (elem.msRequestFullscreen){
+          elem.msRequestFullscreen();
+        } else if (elem.mozRequestFullScreen){
+          elem.mozRequestFullScreen();
+        } else if (elem.webkitRequestFullscreen){
+          elem.webkitRequestFullscreen();
+        }
+        $('#fullscreen').hide();
+        $('#fullscreenButton').hide();
+        setTimeout(function() {
+            startwhacamole();
+            timeController.setTimeout(gameTotalTime);
+        }, 1500);
+
+    }
+
+
+    var sW = screen.width;
+    var sH = screen.height;
+    var toolbarHeight = 100;
+
+
+    $('body').css('width', sW);
+    $('body').css('height', sH);
+
+    var svgpaper = Snap(sW, sH);
+
+    // compute the coordinates of grids
+    function getmolegridloc(x, y, size, grids, spacing) {
+        var numy = grids[0];
+        var numx = grids[1];
+        var w = size[1],
+            h = size[0];
+        var loc = new Array(numy); // one row
+        for (var i = 0; i < numy; i++) {
+            loc[i] = new Array(numx);
+            for (var j = 0; j < numx; j++) {
+                loc[i][j] = new Array(2);
+                loc[i][j][0] = y + i * spacing + i * h;
+                loc[i][j][1] = x + j * spacing + j * w;
+            }
+        }
+        return loc;
+    }
+
+
+    // draw rectangles on the grids
+    function drawmolehome(loc, size, r, color) {
+        var svgobj = new Array(loc.length);
+        for (var i = 0; i < loc.length; i++) {
+            svgobj[i] = new Array(loc[i].length);
+            for (var j = 0; j < loc[i].length; j++) {
+                svgobj[i][j] = svgpaper.rect(loc[i][j][1], loc[i][j][0], size, size, r);
+                svgobj[i][j].attr("fill", color);
+            }
+        }
+        return svgobj;
+    }
+
+    $('#fullscreenButton').css({
+        "left": 300,
+        "top": 0
+    });
+
+    var nummole = [3, 4];
+    var gapmole = 0.1;
+    var homesize = Math.floor(Math.min(sW / (nummole[1] + nummole[1] * gapmole + gapmole), (sH - toolbarHeight) / (nummole[0] + nummole[0] * gapmole + gapmole)));
+    var moley = (sH - nummole[0] * homesize - (nummole[0] - 1) * homesize * gapmole) / 2;
+    var molex = (sW - nummole[1] * homesize - (nummole[1] - 1) * homesize * gapmole) / 2;
+    var moleloc = getmolegridloc(molex, moley, [homesize, homesize], nummole, homesize * gapmole);
+    var molecorner = 0.5;
+
+    var svgbg = svgpaper.rect(0, 0, sW, sH);
+    svgbg.attr("fill", "black");
+    var molehomeobj = drawmolehome(moleloc, homesize, homesize * molecorner, "green");
+
+    var curmousepos = [-1, -1];
+
+    // var curmoleidx = [0,1];
+    // var airmole = drawmole(molex, moley, moleloc, homesize, curmoleidx, 0, 80);
+
+    var curmoleidx, airmole;
+
+    // hit mole setting
+    var molehitcount = 0;
+    var molehitmax = 50;
+
+    var moleNum = 20;
+
+    var gameTotalTime = 30000;
+    // var
+    var timeController = drawTimeController(sH - toolbarHeight*0.4, toolbarHeight*0.2 , 500);
+
+    var moleNumber =  drawMoleStatus(sW - 300 ,sH - toolbarHeight*0.4, moleNum);
+
+
+    function drawTimeController(height, width, length){
+        var backBar = svgpaper.rect(20, height, length, width, 0);
+        backBar.attr({
+            fill: 'darkred'
+        });
+        var timeBar = svgpaper.rect(20, height, length, width, 0);
+        timeBar.attr({
+           fill: 'green'
+        });
+        var timeLeft = svgpaper.text(20 + length + 10, height + 15, gameTotalTime/1000 + " seconds")
+                        .attr({
+                            fill: "white",
+                            stroke: "white"
+                        });
+
+        var setTimeout = function(millsec){
+            timeBar.animate({
+                width: 0,
+                x: 20 + length
+            }, millsec);
+
+            Snap.animate(millsec, 0, function(value){
+                timeLeft.attr({
+                    text: Math.ceil(value/1000) + ' seconds'
+                });
+            }, millsec);
+        }
+        return {
+            setTimeout: setTimeout
+        }
+    }
+
+    function drawMoleStatus(width, height, number){
+        var numLeft = svgpaper.text(width, height + 15, number + " Left")
+                        .attr({
+                            fill: "white",
+                            stroke: "white",
+                            'text-anchor': "end"
+                        });
+        var updateNum = function(num){
+            numLeft.attr('text', num + " Left")
+        }
+        return {
+            updateNum: updateNum
+        }
+    }
+    // draw a mole
+    function drawmole(x, y, loc, size, idx, r1, r2) {
+        var PATHS = [
+            'M0,0c0,0,0-28.008,0-46.707S0-130,0-130'
+        ];
+
+        var i = idx[0],
+            j = idx[1];
+        var group = svgpaper.g();
+        var path = svgpaper.path(PATHS[Math.floor(Math.random() * PATHS.length)]);
+        totalLength = path.getTotalLength();
+        path.attr({
+            fill: 'none',
+            stroke: "orange",
+            strokeWidth: 150,
+            strokeMiterlimit: 10,
+            strokeLinecap: 'round',
+            opacity: 1,
+            strokeDasharray: totalLength + " 200",
+            strokeDashoffset: totalLength
+        });
+
+        group.add(path);
+
+        group.transform("t" + [loc[i][j][1] + size / 2, loc[i][j][0] + size / 2]);
+
+        var mouth,
+            eye,
+            ey2;
+
+        var face = svgpaper.g();
+        face.attr({
+            'class': 'face animating'
+        });
+
+        mouth = svgpaper.circle(0, 5, 6);
+        mouth.attr({
+            fill: 'white',
+            'class': 'mouth'
+        });
+        face.add(mouth);
+
+        eye = svgpaper.path('M-2.75-6.75c0,0-2.537,2.5-5.667,2.5s-5.667-2.5-5.667-2.5s2.537-2.5,5.667-2.5S-2.75-6.75-2.75-6.75z');
+        eye.attr({
+            fill: '#555555',
+            'class': 'eye left'
+        });
+        face.add(eye);
+
+        eye2 = svgpaper.path('M14.583-6.75c0,0-2.537,2.5-5.667,2.5S3.25-6.75,3.25-6.75s2.537-2.5,5.667-2.5S14.583-6.75,14.583-6.75z');
+        eye2.attr({
+            fill: '#555555',
+            'class': 'eye right'
+        });
+        face.add(eye2);
+
+        face.transform("s2");
+        group.add(face);
+
+
+        // var cover = svgpaper.rect(-, 0, 150, 150);
+        // cover.attr({
+        //     fill: "green"
+        // });
+
+        // group.add(cover);
+
+        var point = path.getPointAtLength(this.totalLength - 0);
+
+        // var svgobj = svgpaper.circle(loc[i][j][1]+size/2, loc[i][j][0]+size/2, r1);
+        // svgobj.attr({
+        //  fill: "#bada55",
+        //     stroke: "#000",
+        //     strokeWidth: 5
+        // });
+        // svgobj.animate({r: r2}, 500);
+        // track mouse position
+        path.animate({
+            strokeDashoffset: 0
+        }, 500);
+
+
+        face.animate({transform: 't'+[point.x,point.y] + "s2"},500);
+
+        $('svg').on("mousemove", function(e) {
+            curmousepos = [e.pageY, e.pageX];
+        });
+        hitmole();
+
+        console.log(group);
+        return group;
+    }
+
+
+    // hit a mole
+    function hitmole() {
+        if (molehitcount >= molehitmax) {
+            molehitcount = 0;
+            airmole.remove();
+            moleNum--;
+            moleNumber.updateNum(moleNum);
+            startwhacamole();
+        } else {
+            // find grid index
+            var gi = -1,
+                gj = -1;
+            for (var i = 0; i < moleloc.length; i++) {
+                if (gi > 0) {
+                    break;
+                }
+                for (var j = 0; j < moleloc[i].length; j++) {
+                    x = moleloc[i][j][1] + homesize / 2, y = moleloc[i][j][0] + homesize / 2;
+                    // if (Math.pow(curmousepos[0]-y, 2) + Math.pow(curmousepos[1]-x, 2) <= Math.pow(homesize*(1+gapmole),2)){
+                    if (Math.abs(curmousepos[0] - y) <= homesize / 2 && Math.abs(curmousepos[1] - x) <= homesize / 2) {
+                        gi = i;
+                        gj = j;
+                        molehomeobj[i][j].attr("fill", "red");
+                    } else {
+                        molehomeobj[i][j].attr("fill", "green");
+                    }
+                }
+            }
+            if (gi == curmoleidx[0] && gj == curmoleidx[1]) {
+                molehitcount++;
+
+            } else {
+                molehitcount = 0;
+            }
+            setTimeout(function() {
+                hitmole();
+            }, 10);
+        }
+    }
+
+
+    function startwhacamole() {
+        curmoleidx = [Math.floor(Math.random() * nummole[0]), Math.floor(Math.random() * nummole[1])];
+        airmole = drawmole(molex, moley, moleloc, homesize, curmoleidx, 0, 80);
+    }
+
+    // $('svg').off("mousemove")
+    </script>
+</body>
+
+</html>

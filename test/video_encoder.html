@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<style type="text/css">
+#downloadP{
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+</style>
+</head>
+
+<body>
+<canvas id="patchCanvas" width="160" height="50" ></canvas>
+<canvas id="imgCanvas" width="640" height="360" ></canvas>
+<p id="downloadP">  </p> </br>
+<button id="downloadButton" onclick="download();">Download Data</button>
+
+<script src="../js/swfobject.js"></script>
+<script src="../js/downloadify.js"></script>
+<script src="../js/DownloadData.js"></script>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="whammy.min.js"></script>
+
+<script type="text/javascript">
+
+function hasGetUserMedia() {
+  return !!(navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
+}
+navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+URL = window.URL || window.webkitURL;
+var streamVideo = document.createElement('video'); // video stream
+
+// getUserMedia setting
+var hdW = 1280, hdH = 720; // high resolution canvas
+var fps = 30;
+var getUserMediaConstraints = {
+ "audio": false,
+ "video": {
+  "mandatory": {
+   "minWidth": hdW,
+   "minHeight": hdH,
+   "minFrameRate": fps,
+   "maxWidth": hdW,
+   "maxHeight": hdH,
+   "maxFrameRate": fps
+  },
+  "optional": []
+ }
+};
+var frame_idx = 0; 
+var frames = []; 
+var imgCanvas, imgCanvasCtx;
+var patchCanvas, patchCanvasCtx;
+var downloadLink, rawLink;
+
+// onload document
+$(document).ready(function() {
+	if (hasGetUserMedia()) {
+		navigator.getUserMedia(getUserMediaConstraints, function(stream) {
+			// video stream
+		    streamVideo.muted = true;
+		    streamVideo.volume = 0;
+		    streamVideo.autoplay = true;
+		    streamVideo.width = hdW;
+		    streamVideo.height = hdH;
+		    streamVideo.src = URL.createObjectURL(stream);
+		    streamVideo.play();
+	        localStream = stream;
+
+	        imgCanvas = document.getElementById('imgCanvas');
+			imgCanvasCtx = imgCanvas.getContext('2d');
+
+			patchCanvas = document.getElementById('patchCanvas');
+			patchCanvasCtx = patchCanvas.getContext('2d');
+
+			downloadLink = document.createElement('a');
+		    downloadLink.download = 'capture.webm';
+		    downloadLink.textContent = '[ download video ]';
+		    downloadLink.title = 'Download your .webm video';
+		    $('#downloadP').append(downloadLink);
+
+	        record_patch();
+	 
+	    }, function() {
+	        alert('Webcam access is denied.');
+	    });
+	} else {
+		alert('getUserMedia() is not supported in your browser');
+	}// getUserMedia
+
+
+	
+
+});
+
+// download to local file
+function download(){
+	var datatosave = JSON.stringify(frames);
+	DownloadData(datatosave, 'rawdata.txt');	
+}
+
+var recordrequest;
+var url;
+var time_img_get = 0, time_img_put = 0, time_img_encode = 0;
+function record_patch(){
+	recordrequest = requestAnimationFrame(record_patch);
+	imgCanvasCtx.drawImage(streamVideo,0,0,640,360); // display the video stream
+
+	// get patch
+	var t1 = new Date().getTime();
+	var imgdata = imgCanvasCtx.getImageData(300,150,160,50);
+	time_img_get += (new Date().getTime() - t1);
+
+	// put on canvas
+	t1 = new Date().getTime();
+	patchCanvasCtx.putImageData(imgdata,0,0);
+	time_img_put += (new Date().getTime() - t1);
+
+	t1 = new Date().getTime();
+	var imgurl = patchCanvas.toDataURL('image/jpeg', 1);
+	frames.push(imgurl);
+	time_img_encode += (new Date().getTime() - t1);
+
+	frame_idx++;
+	if(frame_idx > 10){
+		cancelAnimationFrame(recordrequest);
+
+		var t2 = new Date().getTime();
+		var webmBlob = Whammy.fromImageArray(frames, 1000 / 60);
+		url = window.URL.createObjectURL(webmBlob);
+		downloadLink.href = url;
+
+		console.log('Image getImageData: ' + time_img_get + 'ms')
+		console.log('Image putImageData: ' + time_img_put + 'ms')
+		console.log('Image encoder: ' + time_img_encode + 'ms')
+		console.log('Video encoder: ' + (new Date().getTime() - t2) + 'ms')
+	}
+}
+
+
+</script>
+</body>
+</html>

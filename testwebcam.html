@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>PV GazeTrackr</title>
+	<link rel="stylesheet" type="text/css" href="./styles/main.css">
+</head>
+
+<!-- <div id="content"> -->
+<!-- instruction message -->
+<p id="instrmsgP" style="display: none;"></p>
+<button id="closeWinButton" onclick="closetab();" disabled="disabled" style="display: none;">Close Tab</button>
+<button id="reTrack" onclick="restartTracking();" disabled="disabled" style="display: none;">Restart Tracking</button>
+<button id="start" onclick="startTestFPS();" disabled="disabled" style="display: none;">Start Hardware Test</button>
+<!-- video streaming -->
+<canvas id="imgCanvas" width="640" height="360" style="display: none;"></canvas>
+<!-- facial landmark tracking -->
+<canvas id="overlay" width="640" height="360" style="display: none;"></canvas>
+<!-- facial landmark tracker insturction -->
+<canvas id="msgoverlay" width="640" height="360" style="display: none;"></canvas>
+<p id="statusmsgP" style="display: none;"></p>
+<!-- </div> -->
+
+<script src="./js/jquery-1.11.0.min.js"></script>
+<!-- test webbrowser -->
+<script type="text/javascript" src="./js/bowser.min.js"></script>
+<!-- clm facial landmark tracker -->
+<script src="./clmtrackr/js/utils.js"></script>
+<script src="./clmtrackr/js/numeric-1.2.6.min.js"></script>
+<script src="./clmtrackr/js/mosse.js"></script>
+<script src="./clmtrackr/js/left_eye_filter.js"></script>
+<script src="./clmtrackr/js/right_eye_filter.js"></script>
+<script src="./clmtrackr/js/nose_filter.js"></script>
+<script src="./clmtrackr/models/model_pca_20_svm.js"></script>
+<script src="./clmtrackr/js/clmpm.js"></script>
+<script src="./clmtrackr/js/ccv.js"></script>
+<script src="./clmtrackr/js/cascade.js"></script>
+<script src="./clmtrackr/js/svmfilter_webgl.js"></script>
+<script src="./clmtrackr/js/svmfilter_fft.js"></script>
+<script src="./clmtrackr/js/mossefilter.js"></script>
+<script src="./clmtrackr/js/Stats.js"></script>
+
+<!-- utility functions -->
+<script src="./js/utils.js"></script>
+
+<script type="text/javascript">
+// black background
+$('body').css({'background-color':'#000'});
+$('#instrmsgP').css({'color':'#FFF'});
+
+// getUserMedia setting
+var hdW = 1280, hdH = 720; // high resolution canvas
+var fps = 30;
+var getUserMediaConstraints = {
+ "audio": false,
+ "video": {
+  "mandatory": {
+   "minWidth": hdW,
+   "minHeight": hdH,
+   "minFrameRate": fps,
+   "maxWidth": hdW,
+   "maxHeight": hdH,
+   "maxFrameRate": fps
+  },
+  "optional": []
+ }
+};
+
+// parameters
+var lastFrameTime;
+var statusMsgBarColor = "#ffc107", statusMsgBarMsgColor = "#212121";
+var disableBttnColor = "#A4A4A4", startBttnColor = "#3399FF",closeTabBttnColor = "#3399FF", 
+visBttnColor = "#3399FF", copyBttnColor = "#3399FF";
+// screen size
+var sW, sH;
+// canvas used for video streaming
+var showW = 640, showH = 360;
+var drawW, drawH, imgCanvas, imgCanvasCtx;
+// overlay canvas: display facial landmarks
+var overlay, overlayCtx;
+// overlay canvas: display instruction message
+var msgoverlay, msgoverlayCtx;
+// set up canvas to work on tracking: mid resolution
+var trckW = 640, trckH = 360, trackCanvasCtx, trackCanvas;
+var lastFrameTimeTrck, lastFrameTimeStb;
+var trckInterval = 120;
+// valid tracking results
+var mineyewHD = 30, mineyehHD = 15; // minimum high res eye size
+var minEyeW = mineyewHD/hdW*trckW, maxEyeW = minEyeW*4.5, maxRoll = 20, maxYaw = 20;
+var minIntensity = 30;
+var cntFPS = 0, minFPS = 15, avgFPS = 0, numFPSframe = 50; 
+// canvas position
+var cvsshift = -160, cvsmargin = 20;
+// massage bar
+var barw = showW, barh = 50;
+// flag
+var RESTART = false;
+
+
+function closetab(){
+	open(location, '_self').close();
+}
+
+// get user media
+function hasGetUserMedia() {
+  return !!(navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
+}
+navigator.getUserMedia = navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+URL = window.URL || window.webkitURL;
+var streamVideo = document.createElement('video'); // video stream
+
+// onload document
+// $(document).ready(function() {
+$(window).load(function() {
+	setTimeout(function(){testSetting()}, 500);
+}); // document ready
+
+function testSetting(){
+var win_w = $(window).width();
+var win_h = $(window).height()
+if (win_w == null || win_w == 0 || win_h == null || win_h == 0){
+	win_w = 500; win_h = 800;
+}
+
+// $('#closeWinButton').css( "backgroundColor", "#3399FF");
+// $('#closeWinButton').prop('disabled', false); 
+// displayElm2Center('#closeWinButton', win_w, win_h); // button: close tab
+
+// test web browser: terminate if not google chrome	
+if(bowser.name != 'Chrome'){
+	showInstrMsg(instrMsg.webbrowser, "#instrmsgP", win_w, win_h/3*2);
+
+	// button: copy the current URL to clipboard
+	/*
+	displayElm2Center('#copylinkButton', win_w, win_h);
+	$("#copylinkButton").zclip({
+	path: "./js/ZeroClipboard.swf",
+	copy: function(){
+			return document.URL;
+		}
+	});
+*/
+}else{
+	// instruction: allow camera access
+	showInstrMsg(instrMsg.camaccess, "#instrmsgP", win_w, win_h*2/3);
+	if (hasGetUserMedia()) {
+		navigator.getUserMedia(getUserMediaConstraints, function(stream) {
+			// video stream
+		    streamVideo.muted = true;
+		    streamVideo.volume = 0;
+		    streamVideo.autoplay = true;
+		    streamVideo.width = hdW;
+		    streamVideo.height = hdH;
+		    streamVideo.src = URL.createObjectURL(stream);
+		    streamVideo.play();
+	        localStream = stream;
+
+	        // $('#closeWinButton').hide();
+	        $('#statusmsgP').css({'color':statusMsgBarMsgColor, 'font-size':20});
+	        setUpCanvas();
+
+	    }, function() {
+	    	showInstrMsg(instrMsg.failtest, "#instrmsgP", win_w, win_h*2/3);
+	    });
+	} else {
+		alert('getUserMedia() is not supported in your browser');
+	}// getUserMedia
+}// check browser
+}
+
+
+// set up canvas when ready
+function setUpCanvas(){
+	// screen size
+	sW = $(window).width();
+	sH = $(window).height();
+
+	// canvas used for video streaming
+	imgCanvas = document.getElementById('imgCanvas');
+	imgCanvasCtx = imgCanvas.getContext('2d');
+	drawW = imgCanvas.width;
+	drawH = imgCanvas.height;
+
+	// overlay canvas: display facial landmarks
+	overlay = document.getElementById('overlay');
+	overlayCtx = overlay.getContext('2d');
+
+	// overlay canvas: display instruction message
+	msgoverlay = document.getElementById('msgoverlay');
+	msgoverlayCtx = msgoverlay.getContext('2d');
+
+	// set up canvas to work on tracking: mid resolution
+	trackCanvas = document.createElement('canvas');
+	trackCanvasCtx = trackCanvas.getContext('2d');
+	trackCanvas.width = trckW;
+	trackCanvas.height = trckH;
+
+	// place canvases to correct position
+	displayElm2Center('#imgCanvas', sW, sH+cvsshift);
+	displayElm2Center('#overlay', sW, sH+cvsshift);
+	displayElm2Center('#msgoverlay', sW, sH+cvsshift);
+	// place buttons to correct position
+	displayElm2Center('#reTrack', sW-drawW/2, sH+drawH+cvsshift+cvsmargin+$('#reTrack').height());
+	displayElm2Center('#start', sW+drawW/2, sH+drawH+cvsshift+cvsmargin+$('#start').height());
+
+	$('#instrmsgP').hide();
+
+	$("#statusmsgP").html('');
+	$("#statusmsgP").show();
+
+	startTracking(); // start facial landmark tracking
+}
+
+function startTracking(){
+	$('#reTrack').prop('disabled', false);
+	$('#start').prop('disabled', true);
+	// initialize tracker
+	ctrackr = new clmpm.tracker({useWebGL : true});
+	ctrackr.init(pModel);
+	// tracking
+	facialLdmkTrackingDisplay();
+}
+
+// display facial landmarks tracking results
+function facialLdmkTrackingDisplay(){
+	displayLdmkRequest = requestAnimFrame(facialLdmkTrackingDisplay);
+
+	imgCanvasCtx.drawImage(streamVideo,0,0,showW,showH); // display the video stream
+	trackCanvasCtx.drawImage(streamVideo, 0, 0, trckW, trckH) // rescale the video stream
+	ctrackr.trackFrame(trackCanvas); // tracking
+	overlayCtx.clearRect(0, 0, showW, showH); // tracking results
+	if(ctrackr.getCurrentPosition()){
+		ctrackr.draw(overlay);
+	}
+	// status message
+	msgoverlayCtx.clearRect(0, 0, drawW, drawH);
+	msgoverlayCtx.fillStyle = statusMsgBarColor;
+	msgoverlayCtx.fillRect(0, 0, barw, barh);
+	
+	var positions = ctrackr.getCurrentPosition(); 
+	var msg = checkLdmkValidity(positions);
+	var validldmk = false;
+	if (msg == ''){
+		// check average intesnsity of eye patch
+		var leftI = computeAverageIntensity(trackCanvasCtx, positions[23][0], positions[24][1], positions[25][0]-positions[23][0], positions[26][1]-positions[24][1]);
+		var rightI = computeAverageIntensity(trackCanvasCtx, positions[30][0], positions[29][1], positions[28][0]-positions[30][0], positions[31][1]-positions[29][1]);
+		if(leftI > minIntensity && rightI > minIntensity){
+			validldmk = true;
+		}else{
+			msg = statusMsg.toodark;
+		}
+	}
+	if(validldmk){
+		$("#statusmsgP").html(statusMsg.clickrestart);
+		{
+			if($('#start').attr('disabled') == "disabled"){
+				$('#start').prop('disabled', false);
+				$('#start').css("backgroundColor", startBttnColor);
+				$('#start').css( "color", '#424242');
+				$('#start').hover(
+		        	function(){$(this).css({'color':'#eeeeee', "backgroundColor":startBttnColor});},
+		        	function(){$(this).css({'color':'#424242', "backgroundColor":startBttnColor});}
+				);
+			}
+		}
+	}else{
+		if($('#start').attr('disabled') != "disabled"){
+			$('#start').prop('disabled', true);
+			$('#start').css( "color", '#eeeeee');
+			$('#start').css( "backgroundColor", disableBttnColor);
+		}
+		$("#statusmsgP").html(msg);
+	}
+	$("#statusmsgP").css({'left': (sW-$("#statusmsgP").width())/2});
+	$("#statusmsgP").css({'top': (sH+cvsshift-$('#msgoverlay').height())/2+barh/2-$("#statusmsgP").height()/2});
+}
+
+// check the quality the facial landmark tracking based on head pose, face size
+function checkLdmkValidity(position){
+	if(!position){
+		return statusMsg.detecting;
+	}
+	// estimate roll: the direction of the line connecting two outer eye corners
+	var Roll = Math.abs(Math.atan((position[28][1]-position[23][1])/(position[28][0]-position[23][0]))/Math.PI*180);
+	if(Roll > maxRoll){
+		return statusMsg.rotateface;
+	}
+	// estimate yaw
+	// direction of nose bridge (nose, eye, mouth relative location)
+	var Yaw = Math.abs(Math.atan((position[33][0]-position[62][0])/(position[33][1]-position[62][1]))/Math.PI*180);
+	if(Yaw > maxYaw){
+		return statusMsg.turnface;
+	}
+	// control eye patch size: not too small/large
+	var iW = Math.abs(position[23][0]+position[30][0]-position[25][0]-position[28][0])/2;
+	if(iW < minEyeW){
+		return statusMsg.toofar;
+	}
+	if(iW > maxEyeW){
+		return statusMsg.tooclose;
+	}
+	return ''; // no abnormal result detected
+}
+
+function computeAverageIntensity(ctx, x, y, w, h){
+	var imageData = ctx.getImageData(x, y, w, h);
+	var pixels = imageData.data;
+	var meanval = 0;
+	for(var i = 0; i < w*h; i++){
+		meanval += pixels[i*4];
+		meanval += pixels[i*4+1];
+		meanval += pixels[i*4+2];
+	}
+	return meanval/(w*h*3);
+}
+
+function startTestFPS(){
+	lastAnimationFrame = requestAnimationFrame(startTestFPS);
+	// minimum time interval between two images
+    var time = new Date().getTime();
+    if (lastFrameTime == null) { lastFrameTime = time;}
+    if (time - lastFrameTime <= 25) return; // control frame rate: 25 ms per frame
+    if (cntFPS <= numFPSframe) {
+    	cntFPS++;	
+    	avgFPS += 1000/(time - lastFrameTime);
+    	lastFrameTime = time;
+    	if (cntFPS == numFPSframe) {
+    		cancelRequestAnimFrame(lastAnimationFrame);
+    		cancelRequestAnimFrame(displayLdmkRequest);
+
+    		avgFPS /= numFPSframe;
+
+    		if(avgFPS < minFPS){  // fps is too low
+				// $('#instrmsgP').html(instrMsg.computertooslow);
+				showInstrMsg(instrMsg.computertooslow, "#instrmsgP", sW, sH*2/3);
+    		}else{
+    			showInstrMsg(instrMsg.passtest, "#instrmsgP", sW, sH*2/3);
+    		}
+    		$('#closeWinButton').css( "backgroundColor", copyBttnColor);
+    		$("#closeWinButton").css({"width":"500px","top":"50%","left":"50%", "margin-left":"-250px"});
+			$('#closeWinButton').prop('disabled', false); // close tab;
+			$("#closeWinButton").show();
+
+    		$('#imgCanvas').hide();
+    		$('#overlay').hide();
+    		$('#msgoverlay').hide();
+    		$('#reTrack').hide();
+    		$('#start').hide();
+    		$('#statusmsgP').hide();
+    	};
+    }
+
+}
+
+</script>
+
+</html>

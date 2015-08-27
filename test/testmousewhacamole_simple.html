@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<link rel="stylesheet" type="text/css" href="../styles/main.css">
+	<style type="text/css">
+	body{margin: 0 0 0 0;}
+	svg {margin: 0 0 0 0;}
+	</style>
+</head>
+
+<body>
+
+<canvas id="fullscreen"  style="display: none;"></canvas>
+<button id="fullscreenButton" onclick="enterFullScreen();">Start Game</button>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="../js/snap.svg-min.js"></script>
+<script type="text/javascript">
+
+
+
+function enterFullScreen(){
+  toggleFullScreenOnEle("fullscreen");
+}
+
+function toggleFullScreenOnEle(ele){
+  elem = document.getElementById(ele);
+  if (elem.requestFullscreen){
+    elem.requestFullscreen();
+  } else if (elem.msRequestFullscreen){
+    elem.msRequestFullscreen();
+  } else if (elem.mozRequestFullScreen){
+    elem.mozRequestFullScreen();
+  } else if (elem.webkitRequestFullscreen){
+    elem.webkitRequestFullscreen();
+  }
+  $('#fullscreen').hide();
+  $('#fullscreenButton').hide();
+  setTimeout(function(){
+  	startwhacamole();
+  }, 1500);
+  
+}
+
+
+var sW = screen.width;
+var sH = screen.height;
+
+
+$('body').css('width', sW);
+$('body').css('height', sH);
+
+var svgpaper = Snap(sW, sH);
+
+// compute the coordinates of grids
+function getmolegridloc(x, y, size, grids, spacing){
+  var numy = grids[0];
+  var numx = grids[1];
+  var w = size[1], h = size[0];
+  var loc = new Array(numy); // one row
+  for(var i = 0; i < numy; i++){
+    loc[i] = new Array(numx);
+    for(var j = 0; j < numx; j++){
+      loc[i][j] = new Array(2);
+      loc[i][j][0] = y + i*spacing + i*h;
+      loc[i][j][1] = x + j*spacing + j*w;
+    }
+  }
+  return loc;
+}
+
+
+// draw rectangles on the grids
+function drawmolehome(loc, size, r, color){
+	var svgobj = new Array(loc.length);
+	for (var i = 0; i < loc.length; i++){
+		svgobj[i] = new Array(loc[i].length);
+		for (var j = 0; j < loc[i].length; j++){
+			svgobj[i][j] = svgpaper.rect(loc[i][j][1], loc[i][j][0], size, size, r);
+			svgobj[i][j].attr("fill", color);
+		}
+	}
+	return svgobj;
+}
+
+$('#fullscreenButton').css({"left":300, "top":0});
+
+var nummole = [3, 4];
+var gapmole = 0.1;
+var homesize = Math.floor(Math.min(sW/(nummole[1] + nummole[1]*gapmole + gapmole), sH/(nummole[0] + nummole[0]*gapmole + gapmole)));
+var moley = (sH - nummole[0]*homesize - (nummole[0]-1)*homesize*gapmole)/2;
+var molex = (sW - nummole[1]*homesize - (nummole[1]-1)*homesize*gapmole)/2;
+var moleloc = getmolegridloc(molex, moley, [homesize, homesize], nummole, homesize*gapmole);
+var molecorner = 0.2;
+
+var svgbg = svgpaper.rect(0,0,sW,sH);
+svgbg.attr("fill", "black");
+var molehomeobj = drawmolehome(moleloc, homesize, homesize*molecorner, "green");
+var curmousepos = [-1, -1];
+
+// var curmoleidx = [0,1];
+// var airmole = drawmole(molex, moley, moleloc, homesize, curmoleidx, 0, 80);
+
+var curmoleidx, airmole;
+
+// hit mole setting
+var molehitcount = 0;
+var molehitmax = 50;
+
+
+// draw a mole
+function drawmole(x, y, loc, size, idx, r1, r2){
+	var i = idx[0], j = idx[1];
+	var svgobj = svgpaper.circle(loc[i][j][1]+size/2, loc[i][j][0]+size/2, r1);
+	svgobj.attr({
+		fill: "#bada55",
+	    stroke: "#000",
+	    strokeWidth: 5
+	});
+	svgobj.animate({r: r2}, 500);
+	// track mouse position
+	$('svg').on( "mousemove", function( e ) {
+		curmousepos = [e.pageY, e.pageX];
+	});
+	hitmole();
+	return svgobj;
+}
+
+
+// hit a mole
+function hitmole(){
+	if (molehitcount >= molehitmax){
+		molehitcount = 0;
+		airmole.remove();
+		startwhacamole();
+	}else{
+		// find grid index
+		var gi = -1, gj = -1;
+		for (var i = 0; i < moleloc.length; i++){
+			if (gi > 0){
+				break;
+			}
+			for (var j = 0; j < moleloc[i].length; j++){
+				x = moleloc[i][j][1]+homesize/2, y = moleloc[i][j][0]+homesize/2;
+				// if (Math.pow(curmousepos[0]-y, 2) + Math.pow(curmousepos[1]-x, 2) <= Math.pow(homesize*(1+gapmole),2)){
+				if( Math.abs(curmousepos[0]-y) <= homesize/2 && Math.abs(curmousepos[1]-x) <= homesize/2){
+					gi = i;
+					gj = j;
+					molehomeobj[i][j].attr("fill", "red");
+				}else{
+					molehomeobj[i][j].attr("fill", "green");
+				}
+			}
+		}
+		if (gi == curmoleidx[0] && gj == curmoleidx[1]){
+			molehitcount++;
+		}else{
+			molehitcount = 0;
+		}
+		setTimeout(function(){hitmole();}, 10);
+	}
+}
+
+
+function startwhacamole(){
+	curmoleidx = [Math.floor(Math.random()*nummole[0]), Math.floor(Math.random()*nummole[1])];
+	airmole = drawmole(molex, moley, moleloc, homesize, curmoleidx, 0, 80);
+}
+
+// $('svg').off("mousemove")
+
+</script>
+</body>
+</html>

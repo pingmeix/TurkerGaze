@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<body>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+
+
+<script type="text/javascript">
+
+savemode = 'a';
+folder = "../mturkhit/20150302114401/";
+fname = "test5.txt";
+data = "\nP!";
+upload_url = "http://isun.cs.princeton.edu/server/savedata.cgi";
+$.post(upload_url,
+{ 	
+	folder:folder,
+	file: fname,
+	data: data,
+	mode: savemode
+},function(data){
+	try{
+		if(data == 'success'){
+			console.log('success')
+		}else{
+			// alert('Data upload failed.')
+			console.log(data);
+		}
+	}catch(err){
+		console.log(data);
+	}
+});
+
+
+</script>
+
+
+</body>
+</html>

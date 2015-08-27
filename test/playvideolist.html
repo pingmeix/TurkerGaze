@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="../styles/main.css">
+	<style type="text/css">
+	#fullscreenButton{
+		margin-top: 300px;
+	}
+	#playVideoButton{
+		position: relative;
+		width: 370px;
+		left: 50%;
+		margin-left: -185px;
+		margin-bottom: 20px; 
+		margin-top: 300px;
+	}
+	</style>
+</head>
+
+<body>
+
+<canvas id="fullscreen" style="display: none;"></canvas>
+<button id="fullscreenButton" onclick="enterFullScreen();">Enter Full Screen</button>
+
+<script type="text/javascript">
+
+
+function enterFullScreen(){
+	$('#fullscreenButton').hide();
+	toggleFullScreenOnEle("fullscreen");
+	$('#playVideoButton').show();
+	$('#fullscreen').show();
+	ctx.fillStyle = "#000";
+	ctx.fillRect(0,0,sW,sH);
+	// playvideos();
+}
+
+function toggleFullScreenOnEle(ele){
+  elem = document.getElementById(ele);
+  if (elem.requestFullscreen){
+    elem.requestFullscreen();
+  } else if (elem.msRequestFullscreen){
+    elem.msRequestFullscreen();
+  } else if (elem.mozRequestFullScreen){
+    elem.mozRequestFullScreen();
+  } else if (elem.webkitRequestFullscreen){
+    elem.webkitRequestFullscreen();
+  }
+}
+
+var displayElm2Center = function(id, w, h){
+    var l = (w - $(id).width())/2;
+    var t = (h - $(id).height())/2;
+    $(id).css({left: l, top: t});
+    $(id).show();
+}
+
+// $(document).ready(function() {
+var sW = screen.width;
+var sH = screen.height;
+
+var fsCanvas = document.getElementById("fullscreen");
+fsCanvas.width = sW;
+fsCanvas.height = sH;
+var ctx = fsCanvas.getContext('2d');
+$('#fullscreenButton').prop('disabled', true);
+$('#fullscreenButton').css({"background-color":"#03a9f4", 'color':'#424242'});
+$('#fullscreenButton').hover(
+	function(){$(this).css({'color':'#eeeeee','background-color':'#29b6f6'});},
+	function(){$(this).css({'color':'#424242','background-color':'#03a9f4'});}
+);
+
+
+
+function checkVideoPreload(){
+	checkVideoPreloadRequest = requestAnimationFrame(checkVideoPreload);
+	var loadcomplete = true;
+	for (var b = 0; b < videoobjs.length; b++){
+		for(var c = 0; c < videoobjs[b].length; c++){
+			if (videoobjs[b][c] != null && videoobjs[b][c].readyState != 4){
+				loadcomplete = false;
+				break;
+			}
+		}
+	}
+	if (loadcomplete){
+		cancelAnimationFrame(checkVideoPreloadRequest);
+		console.log('All video are loaded succesfully.')
+		// enable button
+		$('#fullscreenButton').prop('disabled', false);
+	}
+}
+
+
+
+var livevideo = null; // batch, idx
+var livevideopara = null;// play_length, start_time
+var videolist, videoobjs, videoload;
+var videotypes = {"video/mp4":[], "video/ogg":[], "video/webm":[]};
+var keys = Object.keys(videotypes)
+var v = document.createElement('video');
+for (var t = 0; t < keys.length; t++){
+	if (v.canPlayType(keys[t])){
+		videotypes[keys[t]] = 1;
+	}
+}
+
+
+$.getJSON('../config/test_video.json', function(data) {
+	videolist = data.video;
+	console.log(videolist);
+})
+.fail(function() {
+})
+.always(function() {
+	if (videolist.length > 0 && videolist[0].length > 0){
+		console.log('Preloading videos...')
+		videoobjs = new Array(videolist.length);
+		videoload = new Array(videolist.length);
+		for (var b = 0; b < videolist.length; b++){ // batch
+			videoobjs[b] = new Array(videolist[b]);
+			videoload[b] = new Array(videolist[b]);
+			for (var c = 0; c < videolist[b].length; c++){ // clips in a batch
+				videoobjs[b][c] = null;
+				videoload[b][c] = 0;
+
+				playable = false;
+				for (var t = 0; t < videolist[b][c].source.type.length; t++){
+					if (videotypes[videolist[b][c].source.type[t]] == 1){
+						console.log('Can play: ' + videolist[b][c].source.url[t]);
+						videoobjs[b][c] = document.createElement('video');
+						videoobjs[b][c].autoplay = false;
+						videoobjs[b][c].src = videolist[b][c].source.url[t];
+
+
+						videoobjs[b][c].addEventListener('loadeddata', function() {
+							var s = Math.min(sW/this.videoWidth, sH/this.videoHeight);
+							this.width = this.videoWidth*s;
+							this.height = this.videoHeight*s;
+							console.log('Video is loaded and can be played. Resized:' + this.width + '*' + this.height);
+						}, false);
+
+
+
+
+						videoobjs[b][c].onplay = function(){
+							console.log('Playing: ' + this.src);
+							console.log('Video resolution: ' + this.videoWidth + '*' + this.videoHeight);
+							drawclipframe();
+						}
+						videoobjs[b][c].load();
+						playable = true;
+						console.log(videoobjs[0][1])
+						break;
+					}
+				}
+			}
+		}
+		// start monitoring the progress of video preloading
+		checkVideoPreload();
+	}else{
+		console.log('Fail to load video list...')
+	}
+});
+
+function playvideos(b, c){
+	console.log('Play video!');
+	// stop any video in progress
+	if (livevideo != null && videoobjs[livevideo[0]][livevideo[1]] != null){
+		videoobjs[livevideo[0]][livevideo[1]].pause();
+	}
+	ctx.fillStyle = "#000";
+	ctx.fillRect(0,0,sW,sH);
+
+	livevideo = [b, c];
+	var t = new Date().getTime();
+	livevideopara = [videolist[b][c].playlen, t];
+	if(livevideo != null && videoobjs[b][c] != undefined){
+		videoobjs[b][c].play();
+	}
+}
+
+function drawclipframe(){
+	var b = livevideo[0], c = livevideo[1];
+	var vw = videoobjs[b][c].width;
+	var vh = videoobjs[b][c].height;
+	if(videoobjs[b][c].paused || videoobjs[b][c].ended) return;
+	var t = new Date().getTime();
+	if ((t - livevideopara[1]) > livevideopara[0]){
+		videoobjs[b][c].pause();
+		return;
+	}
+	ctx.drawImage(videoobjs[b][c], (sW-vw)/2, (sH-vh)/2, vw, vh);
+	setTimeout(drawclipframe, 20);
+}
+
+
+</script>
+
+</body>

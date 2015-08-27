@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+
+<!-- ****************** amazon mturk HIT layout ****************** -->
+<h2 id="gamename" style="opacity:1;font-size:200%;">Whac-A-Mole by Gaze</h2>
+<li>	
+
+	<p>This game uses your web camera to track where you’re looking at the screen. See <a id="urlinstr" target="_blank">Detailed Instruction and Hardware Test</a></p>
+	<img id="gamelogo" src="http://isun.cs.princeton.edu/gamegaze/icons/instr/whac_a_mole_gaze_px.png" width="650">
+
+	</br></br>
+
+	<span style="font-size:larger;font-weight:bold;" id="span_link"><a id="urltoclick" target="_blank">Click here</a> to work on the HIT (in a new tab).</span>
+
+	</br></br>
+
+	<input autocomplete="off" id="submitButton" onclick="return confirmSubmit()" type="submit" value="Submit"/> 
+
+
+
+
+	<p><input type="hidden" id="assignmentId" name="assignmentId" value=""></p>
+
+	<p>The game is still under developing, so we suggest you DO NOT spend hours on it if it doesn't work, because <span style="color:red;"> we will not be able to pay you unless you complete the task.</span></p>
+
+	<p><span style="font-size:12px;">By playing this game, you are participating in a scientific study for eye-tracking prediction by students from Princeton University. Your participation in this research is voluntary. You may decline further participation, at any time, without adverse consequences. Your anonymity is assured: the images of your eyes seen from the webcam will not be released, and all information will be anonymized.</span></p>
+
+	<p>If you have any comments for us, please let us know here (optional):</p>
+	<textarea rows="3" cols="80" name="comments" id="comments"></textarea>	
+
+	<p id="hitstatus" style="display: none;">Not Finished</p>
+
+</li>
+
+
+</br></br>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script> 
+<script type="text/javascript">
+
+
+function confirmSubmit(){
+	return true;
+}
+
+function getURLParameter(VarSearch, defaultval){
+    var SearchString = window.location.search.substring(1);
+    var VariableArray = SearchString.split('&');
+    for(var i = 0; i < VariableArray.length; i++){
+        var KeyValuePair = VariableArray[i].split('=');
+        if(KeyValuePair[0] == VarSearch){
+            return KeyValuePair[1];
+        }
+    }
+	return defaultval;
+}
+var displayElm2Center = function(id, w, h){
+    var l = (w - $(id).width())/2;
+    var t = (h - $(id).height())/2;
+    $(id).css({left: l, top: t});
+    $(id).show();
+}
+
+
+$(document).ready(function(){
+	$('body').css({
+		"font-size": "16px",
+		"font-family": "'Lucida Grande', Helvetica, Arial, Verdana, sans-serif",
+		"text-align": "center",
+		"background-color": "#F1F1F1"
+	});
+	$('li').css({
+		"list-style-type": "none",
+	    "display": "inline-block",
+	    "padding": "20px 0px 20px",
+	    "min-height": "122px",
+	    "width": "800px",
+	    "border": "1px solid #dadada",
+	    "-webkit-border-radius": "5px",
+	    "-moz-border-radius": "5px",
+	    "border-radius": "5px",
+	    "background-color": "#FFFFFF"
+	});
+	$('p').css({
+		"position":"relative",
+		"width":"700px",
+		"text-align": "left",
+		"left":"50px"
+	});
+
+	$('#submitButton').css({
+		"height": "50px",
+		"font-size": "25px",
+		"font-weight": "bold",
+		"font-family":"'Lucida Grande', Helvetica, Arial, Verdana, sans-serif",
+		"color": "#424242",
+		"border-style": "none",
+		"border-radius": "15px",
+		"cursor":"pointer",
+		"outline": 0
+	});
+
+	$('#submitButton').css({"background-color":"#03a9f4", 'color':'#424242'});
+    $('#submitButton').hover(
+    	function(){$(this).css({'color':'#eeeeee','background-color':'#29b6f6'});},
+    	function(){$(this).css({'color':'#424242','background-color':'#03a9f4'});}
+	);
+
+	$('#gamelogo').css({
+		"border-radius":"25px",
+	})
+	$('.showlink').hide();
+
+	var workerId = getURLParameter('workerId', null);
+	var assignmentId = getURLParameter('assignmentId', null);
+	var fakeId = ${fakeId};
+	
+	// instruction webpage
+	var instructionURL = 'http://isun.cs.princeton.edu/gamegaze/mturk/molegameinstruction.html';
+	$('#urlinstr').attr('href', instructionURL);
+	document.getElementById('assignmentId').value = assignmentId;
+	// Check if the worker is PREVIEWING the HIT or if they've ACCEPTED the HIT
+	if (assignmentId == "ASSIGNMENT_ID_NOT_AVAILABLE" || assignmentId == null){
+		// do nothing
+	}else{ // If HIT accepted
+		var experimentURL = 'http://isun.cs.princeton.edu/gamegaze/pxgazetrackr.html?workerId=' + workerId + '&assignmentId=' + assignmentId + '&sunbatchid=' + 'batch20150410_WhacMIT1003_level1';
+
+
+		$('#urltoclick').attr('href', experimentURL);
+		$('#urladdress').html(experimentURL);
+	}
+});
+</script>
+
+<!-- ****************** amazon mturk HIT layout ****************** -->
+
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<body>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+
+<script type="text/javascript">
+
+var workerId = "Alex";
+var fname = workerId + "_log.json";
+var file_url = "../../results/" + fname;
+var workerlog = {};
+var exp_id = "719";
+
+var jqxhr = $.getJSON(file_url, function(data) {
+  console.log(JSON.stringify(data));
+  console.log( "read file success" );
+  workerlog = data;
+  if(workerlog[exp_id] == undefined){
+    workerlog[exp_id] = [];
+  }else{ // test the average performance
+  }
+})
+.done(function() {
+  console.log( "second success" );
+})
+.fail(function() {
+  workerlog[exp_id] = [];
+  console.log( "read file error" );
+})
+.always(function() {
+  console.log( "complete" );
+  update();
+});
+
+
+function update(){
+  // update performance
+  var score = Math.random();
+  console.log(score)
+  workerlog[exp_id].push(score);
+  // data_item = {"experiment":"722", "performance":[0.02]};
+  upload_url = "http://vision.princeton.edu/projects/2014/iSUN/mturk/save.cgi?";
+  $.post(upload_url,
+  {   file: fname,
+      data: JSON.stringify(workerlog)
+  },function(data){
+    try{
+      if(data == 'success'){
+        var jqxhr = $.getJSON(file_url, function(data) {
+          console.log(JSON.stringify(data));
+        });
+      }else{
+        alert('Data upload failed.')
+      }
+    }catch(err){
+      alert(data);
+    }
+  });
+}
+
+
+
+</script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+
+<style type="text/css">
+@-webkit-keyframes FadeInOut4 {
+0% {opacity:1;}
+24% {opacity:1;}
+25% {opacity:0;}
+97% {opacity:0;}
+100% {opacity:1;}
+}
+
+@keyframes FadeInOut4 {
+0% {opacity:1;}
+24% {opacity:1;}
+25% {opacity:0;}
+97% {opacity:0;}
+100% {opacity:1;}
+}
+
+@-webkit-keyframes FadeInOut3 {
+0% {opacity:1;}
+29% {opacity:1;}
+32% {opacity:0.8;}
+34% {opacity:0;}
+95% {opacity:0;}
+98% {opacity:0.8;}
+100% {opacity:1;}
+}
+
+@keyframes FadeInOut3 {
+0% {opacity:1;}
+29% {opacity:1;}
+32% {opacity:0.8;}
+34% {opacity:0;}
+95% {opacity:0;}
+98% {opacity:0.8;}
+100% {opacity:1;}
+}
+
+@-webkit-keyframes FadeInOut2 {
+0% {opacity:1;}
+44% {opacity:1;}
+48% {opacity:0.8;}
+50% {opacity:0;}
+94% {opacity:0;}
+96% {opacity:0.8;}
+100% {opacity:1;}
+}
+
+@keyframes FadeInOut2 {
+0% {opacity:1;}
+44% {opacity:1;}
+48% {opacity:0.8;}
+50% {opacity:0;}
+94% {opacity:0;}
+96% {opacity:0.8;}
+100% {opacity:1;}
+}
+/*
+#tipssec0,#tipssec1,#tipssec2,#tipssec3,#tipssec4{
+  position:absolute;
+  height:50%;
+  max-height:250px;
+  width:17%;
+  margin:0 auto;
+}
+
+#tipssec0 img, #tipssec1 img,#tipssec2 img,#tipssec3 img,#tipssec4 img {
+  position:absolute;
+  left:0;
+}
+
+#tipssec0 {left:0;}
+#tipssec1 {left:20%;}
+#tipssec2 {left:40%;}
+#tipssec3 {left:60%;}
+#tipssec4 {left:80%;}
+
+#tipssec2 img {
+  -webkit-animation-name: FadeInOut2;
+  -webkit-animation-timing-function: ease-in-out;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-duration: 4s;
+
+  animation-name: FadeInOut2;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-duration: 4s;
+}
+#tipssec1 img, #tipssec3 img {
+  -webkit-animation-name: FadeInOut3;
+  -webkit-animation-timing-function: ease-in-out;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-duration: 6s;
+
+  animation-name: FadeInOut3;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-duration: 6s;
+}
+
+#tipssec4 img {
+  -webkit-animation-name: FadeInOut4;
+  -webkit-animation-timing-function: ease-in-out;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-duration: 8s;
+
+  animation-name: FadeInOut4;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-duration: 8s;
+}
+*/
+#tipssec4 img:nth-of-type(1){/*4th img*/
+  -webkit-animation-delay: 6s;
+  animation-delay: 6s;
+}
+#tipssec1 img:nth-of-type(1), #tipssec3 img:nth-of-type(1), #tipssec4 img:nth-of-type(2){/*3rd img*/
+  -webkit-animation-delay: 4s;
+  animation-delay: 4s;
+}
+#tipssec1 img:nth-of-type(2), #tipssec2 img:nth-of-type(1), #tipssec3 img:nth-of-type(2), #tipssec4 img:nth-of-type(3) {/*2nd img*/
+  -webkit-animation-delay: 2s;
+  animation-delay: 2s;
+}
+#tipssec1 img:nth-of-type(3), #tipssec2 img:nth-of-type(2), #tipssec3 img:nth-of-type(3), #tipssec4 img:nth-of-type(4) {/*1st img*/
+  -webkit-animation-delay: 0;
+  animation-delay: 0;
+}
+#tipssec0 img{/*single img*/
+	opacity:1;
+}*/
+
+
+</style>
+
+<body>
+	<div id = 'tipsdiv'></div>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<script type="text/javascript">
+	var tipimgpaths = ["../icons/tips/1.png", "../icons/tips/2.png", "../icons/tips/3.png", "../icons/tips/4.png", "../icons/tips/5.png", "../icons/tips/6.png", "../icons/tips/7.png", "../icons/tips/8.png", "../icons/tips/9.png", "../icons/tips/10.png", "../icons/tips/11.png", "../icons/tips/12.png", "../icons/tips/13.png"]; 
+	// var tipsimggroup = [[0,1], [2,3,4], [5,6],[7,8,9],[10,11]];
+	var tipsimggroup = [[0], [1,2,3], [4,5], [6,7,8], [9,10,11,12]];
+	</script>
+
+	<script type="text/javascript">
+	for(var j = 0; j < tipsimggroup.length; j++){
+		 var $newdiv = $("<div id='tipssec"+j+"'/>");
+		 $("#tipsdiv").append($newdiv);
+		var img;
+		for(var i = 0; i < tipsimggroup[j].length; i ++){
+			img = $('<img id="img'+i+'">');
+			img.attr('src', tipimgpaths[tipsimggroup[j][i]]);
+			img.appendTo('#tipssec'+j);
+			img.css({"max-width":"100%", "max-height":"100%"});
+		} 
+	}
+
+</script>
+
+
+</body>
+</html>
