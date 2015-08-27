@@ -8,7 +8,7 @@ TurkerGaze is a webcam-based eye tracking game for collecting large-scale eye tr
 
 ![system overview](http://isun.cs.princeton.edu/TurkerGaze/demo/system_overview.png)
 
-### TurkerGaze
+### Citing
 If you find TurkerGaze useful in your research, please consider citing:
 
     @article{xu15arXiv,
