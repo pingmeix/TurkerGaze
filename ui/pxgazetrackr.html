@@ -10,23 +10,9 @@
 </head>
 
 <body>
-<!-- <div id="all"> -->
-<!-- div: normal mode hit preview -->
 
 
 <table id="content" style="display: none;">	
-	<!-- HIT summary -->
-	<!-- <tr>
-		<td>
-		<p id="hitsummary" style="display: none;">This HIT offers a bonus based on your points in the game. To get points, you need to: </br>(1) stare at birds and pigs, and (2) remember photos that you see.</p>
-		</td>
-	</tr> -->
-	<!-- icons for instruction -->
-	<!-- <tr>
-		<td>
-		<div id="instrimgdiv" style="display: none;"></div>
-		</td>
-	</tr>-->
 	<tr>
 		<td>
 		<div id="gamelogo" style="display: none;"></div>
@@ -45,8 +31,6 @@
 	</tr>
 </table>
 
-<!-- <div id="fscontent"> -->
-<!-- div: full screen experiment -->
 
 <!-- canvas -->
 <!-- experiment interface -->
@@ -68,7 +52,6 @@
 <button id="start" onclick="startTask();" disabled="disabled" style="display: none;">Start</button>
 <button id="replayButton" onclick="visReset();" style="display: none;">Visualize Results</button>
 <button id="downloadButton" onclick="download();" style="display: none;">Download Data</button>
-<!-- <button id="downloadButtonRaw" onclick="downloadraw();" style="display: none;">Download Raw Data</button> -->
 <button id="quitFullScreenButton" onclick="quitfullscreen();" disabled="disabled" style="display: none;">Quit Full Screen</button>
 <button id="closeWinButton" onclick="closetab();" disabled="disabled" style="display: none;">Close Tab</button>
 <!-- instruction message -->
@@ -121,14 +104,12 @@
 		<span style="font-size:12px;">By playing this game, you are participating in a scientific study for eye-tracking prediction by students from Princeton University. Your participation in this research is voluntary. You may decline further participation, at any time, without adverse consequences. Your anonymity is assured: the images of your eyes seen from the webcam will not be released, and all information will be anonymized.</span>
 	</div>
 </div>
-<!-- </div> -->
 
 <!-- js library -->
 <script src="./js/jquery-1.11.0.min.js"></script>
 <script src="./js/json.js"></script>
 <script src="./js/jsfeat.js"></script>
-<!-- test webbrowser -->
-<script type="text/javascript" src="./js/bowser.min.js"></script>
+<script src="./js/bowser.min.js"></script>
 <!-- copy address to clipboard -->
 <script type="text/javascript" src="./js/jquery.zclip.js"></script>
 <!-- clm facial landmark tracker -->
@@ -161,12 +142,7 @@
 <!-- regression model -->
 <script src="./js/RidgeRegression.js"></script>
 <script src="./js/MLModel.js"></script>
-<!-- download data -->
-<!-- <script src="./js/swfobject.js"></script>
-<script src="./js/downloadify.js"></script>
-<script src="./js/DownloadData.js"></script> -->
 <!-- send data to server -->
-<!-- <script src="./js/DataTransmitter.js"></script> -->
 <script src="./js/transmitter.js"></script>
 <!-- svg -->
 <script src="./js/snap.svg-min.js"></script>
@@ -246,35 +222,6 @@ function checkTipsLoading(){
 		return;
 	}
 }
-
-/*
-var cntInstImgLoaded = 0;
-function createInstrImgSection(){
-	checkInstrImgLoading();
-	var img;
-	for(var i = 0; i < instrimgpaths.length; i++){
-		img = $('<img>');
-		img.load(function(){
-			drawslider(100, Math.floor(70+cntInstImgLoaded/instrimgpaths.length*15));
-			cntInstImgLoaded++;
-		});
-		img.error(function(){onFailLoadImg('instrimg:'+this.src);});
-		img.attr('src', instrimgpaths[i]);
-		img.appendTo('#instrimgdiv');
-		img.css({"width":"20%"});
-	}
-}
-function checkInstrImgLoading(){
-	checkTInstrImgLoadingRequest = requestAnimFrame(checkInstrImgLoading);
-	if (cntInstImgLoaded >= instrimgpaths.length){
-		cancelAnimationFrame(checkTInstrImgLoadingRequest);
-		createTipsSection();
-		return;
-	}
-}
-*/
-
-
 function createGameLogoSection(){
 	var img;
 	img = $('<img>');
@@ -287,8 +234,6 @@ function createGameLogoSection(){
 	img.css({"width":"100%", "border-radius":"25px"});
 }
 
-// preloading hit images and memory images
-// var hitimgs = new Array(imgpaths.length);
 function preloadHitImgs(idx){
 	if(idx >= imgpaths.length){
 		// createInstrImgSection();
@@ -314,14 +259,6 @@ function checkOKLoading(){
 			}else if(whachit){
 				preloadHitImgs(0);
 			}
-			/*
-			if(imagehit || whachit){
-				// markmark3
-				preloadHitImgs(0);	
-			}else if(videohit){
-				createInstrImgSection();
-			}
-			*/
 		}
 	}
 }
@@ -332,22 +269,11 @@ var cageimg;
 function preloadGrayPigs(idx){
 	if(idx >= graypigs.length){
 		cageimg = graypigset.pop();
-		// $("#instrmsgP").html(instrMsg.loadimg);
-		// console.log('OKLoad = '+OKLoad);
-		// if(experimentId == '777'){ 
-
-			// markmark 2
-			// checkOKLoading();
 			if (imagehit){
 				preloadHitImgs(0);	
 			}else if(videohit){
 				createInstrImgSection();
 			}
-
-
-		// }else{
-		// 	preloadHitImgs(0);	
-		// }
 		return;
 	}
 	graypigset[idx] = new Image();
@@ -379,13 +305,7 @@ function preloadPigs(idx){
 var iconset = new Array(icons.length);
 function preloadIcons(idx){
 	if(idx >= icons.length){
-		// $("#instrmsgP").html(instrMsg.loadpig);
-
-		// markmark 1
-		// preloadPigs(0);
 		checkOKLoading();
-
-
 		return;
 	}
 	iconset[idx] = new Image();
@@ -428,7 +348,6 @@ function checkFontPreloader(){
 	fontPreloaderRequest = requestAnimationFrame(checkFontPreloader);
 	if(FONTLOADED){
 		cancelAnimationFrame(fontPreloaderRequest);
-		// $("#instrmsgP").html(instrMsg.loadbird);
 		drawslider(100, 10); // draw progress bar
 		preloadIcons(0);
 	}
@@ -460,7 +379,6 @@ function getMedia(){
 		    $("#warningP").html('Please turn on the sound for better experience.<br><br>'+'<span style="font-size:12px;">'+legalStatement+'</span>');
 
 	    }, function() {
-	        // alert('Webcam access is denied.');
 	        $("#warningP").html(instrMsg.refreshcamaccess);
 	    });
 	} else {
@@ -554,70 +472,9 @@ function setUpCanvas(){
 	$('#fullscreenButton').css({"background-color":"#A4A4A4", 'color':'#eeeeee'});
 	$('#fullscreenButton').prop('disabled', true);
 
-	// var w = $('#instrimgdiv').width();
-	// $('#instrimgdiv').css({'height':(w/5)});
-	// getMedia();	// start experiment
-
 	getMedia();	// start experiment
-	/*
-	// check worker profile
-	var jqxhrinfo = $.getJSON(workerdir+workerlinfoname, function(data) {
-		workerinfo = data;
-		if(workerinfo != undefined){
-			getMedia();	// start experiment
-		}
-	})
-	.fail(function() {
-		// show form
-		$('#content').hide();
-		$('#basicinfoformbg').css({"background-color":"#FFF", 'position':'absolute','width':'100%', 'height':'100%'});
-		$('#basicinfoform').css({"background-color":"#DDD", 'position':'absolute','width':'600px', 'left':'50%', 'top':'20%','margin-left':'-380px','padding':80, 'font-size':'20px'});
-		$('#workerinfoBtton').css({'width':'150px', 'left':'50%', 'margin-left':'-75px', 'background-color':'#3399FF'});
-		$('#basicinfoformbg').show();
-	});
-	*/
 }
-/*
-function submitinfo(){
-	if ($("input:radio[name=sex]:checked").length == 0){
-		alert('Please enter your gender.');
-		return;
-	}
-	var gender = $('input[name=sex]:checked').val();
-	var age = eval($("#inputage").val());
-	if(age < 10 || age > 95){
-		alert('Please enter your age.');
-		return;
-	}
-	var race = $("#inputrace").val();
-	if(race == '' || race == null){
-		alert('Please enter your ethnicity.');
-		return;	
-	}
-	
-	$('#basicinfoformbg').hide();
-	workerinfo = {'gender':gender, 'age':age, 'race':race};
 
-	$.post("http://isun.cs.princeton.edu/server/savedata.cgi?",
-	{  
-		folder: workerdir,
-		file: workerlinfoname,
-		data: JSON.stringify(workerinfo),
-		mode: 'w'
-		},function(data){
-		try{
-		  if(data == 'success'){
-		  	console.log('info uploaded!')
-		  }else{
-		  	console.log('info uploading failed...')
-		  	console.log(data)
-		  }
-		}catch(err){
-		  console.log('err: info uploading failed...')
-		}
-	});
-}
-*/
 // enter full screen
 function enterFullScreen(){
 	postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'click enter full screen;');
@@ -666,17 +523,14 @@ function enterFullScreen(){
 function checkFullscreenOn(){
 	checkFullscreenOnRequest = requestAnimFrame(checkFullscreenOn);
 	if(window.innerHeight != screen.height){
-	// if(window.outerHeight != screen.height){
 		$(document).unbind(); // unbind key press event
 		cancelRequestAnimFrame(checkFullscreenOnRequest);
 		if (!EXPERIMENT_END && !KEY_DOWN){
-			// alert("Please keep your browser in fullscreen mode.")
 			postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'quit fullscreen;');
 			restartTask(instrMsg.fullscreen); // restart the whole experiment
 		}else{
 			KEY_DOWN = false;
 		}
-		// $('#instrmsgP').css('color', msgColor);
 		$('#warningP').css('color', msgColor);
 	}
 }
@@ -727,10 +581,9 @@ function restartTask(msg){
 		cancelRequestAnimFrame(displayStreamRequest);
 	}
 	if (checkFullscreenOnRequest) cancelRequestAnimFrame(checkFullscreenOnRequest);
-	// if ()
 	ctrackr.stop(); // face tracker
 	if(recorder != null) recorder.stop(); // recorder
-	if(rawcarrier != null) rawcarrier.terminate(); // stop sending eye patch data	
+	// if(rawcarrier != null) rawcarrier.terminate(); // stop sending eye patch data	
 
 	recorder = null;
 	KEY_DOWN = false;
@@ -738,45 +591,35 @@ function restartTask(msg){
 	ABTEST = false;
 
 	// hide elements
-	$('#eyeCanvas').hide();
-	$('#imgCanvas').hide();
-	$('#overlay').hide();
-	$('#msgoverlay').hide();
+	$('#eyeCanvas, #imgCanvas, #overlay, #msgoverlay').hide();
+	// $('#imgCanvas').hide();
+	// $('#overlay').hide();
+	// $('#msgoverlay').hide();
 	ctx.fillStyle = instrBodyColor;
 	ctx.fillRect(0,0,sW,sH);
-	$('#reTrack').hide();
-	$('#start').hide();
-	$('#statusmsgP').hide();
-	$('#vismsgP').hide();
-	$('#slider').hide();
-	$('#fsoverlay').hide();
-	$('#fullscreen').css('cursor','default');
-	$('#fsoverlay').css('cursor','default');
+	
+	$('#statusmsgP, #vismsgP, #slider, #fsoverlay, #reTrack, #start').hide();
+	// $('#reTrack').hide();
+	// $('#start').hide();
+	// $('#vismsgP').hide();
+	// $('#slider').hide();
+	// $('#fsoverlay').hide();
+	$('#fullscreen, #fsoverlay').css('cursor','default');
+	// $('#fsoverlay').css('cursor','default');
 
 	// if svg exists
 	if (svgpaper != null){
 		svgpaper.remove();
 	}
-
-	/*
-	$('#instrmsgP').css('cursor','default');
-	$('#instrmsgP').css('color',msgColor);
-    $('#instrmsgP').html(msg);
-	$('#instrmsgP').css({'max-width':"80%", "top":"51%","left":"10%","right":"10%"});
-	$('#instrmsgP').show();
-	*/
-	$('#instrmsgP').hide();
+	$('#instrmsgP, #tipsdiv').hide();
+	
 	$('#warningP').css('color',msgColor);
 	$('#warningP').html(msg);
-	$('#warningP').show();
-	$('#content').show();
-	$('#tipsdiv').hide();
+	$('#warningP, #content').show();
+
+	// $('#tipsdiv').hide();
 
     if (msg == instrMsg.computertooslow) {
-    	/*
-    	if(window.innerHeight == screen.height){
-			displayElm2Center('#quitFullScreenButton', $(window).width(), $(window).height()/3*2);
-    	}*/
     	quitfullscreen();
     }else{
     	$('#fullscreenButton').html('Restart Game');
@@ -829,14 +672,11 @@ function restartTracking(){
 function displayStreamingVideo(){
 	displayStreamRequest = requestAnimFrame(displayStreamingVideo);
 	// flip the strem video and display
-
 	imgCanvasCtx.save(); // Save the current state
     imgCanvasCtx.scale(-1, 1); // Set scale to flip the image
     imgCanvasCtx.drawImage(streamVideo, -showW, 0, showW, showH); // draw the image
     imgCanvasCtx.restore(); // Restore the last saved state
 
-	// display
-	// imgCanvasCtx.drawImage(streamVideo,0,0,showW,showH); // display the video stream	
 }
 
 
@@ -844,13 +684,10 @@ function displayStreamingVideo(){
 // display facial landmarks tracking results
 function facialLdmkTrackingDisplay(){
 	displayLdmkRequest = requestAnimFrame(facialLdmkTrackingDisplay);
-
-	// imgCanvasCtx.drawImage(streamVideo,0,0,showW,showH); // display the video stream
 	trackCanvasCtx.drawImage(streamVideo, 0, 0, trckW, trckH) // rescale the video stream
 	ctrackr.trackFrame(trackCanvas); // tracking
 	overlayCtx.clearRect(0, 0, showW, showH); // tracking results
 	if(ctrackr.getCurrentPosition()){
-		// ctrackr.draw(overlay);
 		ctrackr.flipdraw(overlay, showW, showH);
 	}
 	// status message
@@ -872,7 +709,6 @@ function facialLdmkTrackingDisplay(){
 		}
 	}
 	if(validldmk){
-		// showInstrMsg(statusMsg.clickrestart,"#statusmsgP", sW, sH-showH+cvsshift);
 		$("#statusmsgP").html(statusMsg.clickrestart);
 		if(DISPLAYON == false && DISPLAYDOTON == false && ABTEST == false){
 			if($('#start').attr('disabled') == "disabled"){
@@ -989,9 +825,9 @@ function startTask(){
 		$('#eyeCanvas').hide();
 		eyeCanvasCtx = eyeCanvas.getContext('2d');		
 
-		// rawcarrier = new transmitdata.DataTransmitter(save_fname_raw, dataQueue, delimiter_raw, bsize_raw, sendinterval_raw);
-		rawcarrier = new transmitdata.DataTransmitter(sunhitdir, save_fname_raw, dataQueue, delimiter_raw, bsize_raw, sendinterval_raw);
-		rawcarrier.start(false);
+		
+		// rawcarrier = new transmitdata.DataTransmitter(sunhitdir, save_fname_raw, dataQueue, delimiter_raw, bsize_raw, sendinterval_raw);
+		// rawcarrier.start(false);
 	}
 	// bilateral setting
     bfilterQ = new Array(bfilterLen);
@@ -2165,9 +2001,9 @@ function senddata(){
 		sendQueue[0] = saveQueue;
 		// resultcarrier = new transmitdata.DataTransmitter(save_fname_result, sendQueue, delimiter, bsize, sendinterval);
 		resultcarrier = new transmitdata.DataTransmitter(sunhitdir, save_fname_result, sendQueue, delimiter, bsize, sendinterval);
-		if(RAWDATA){
-			rawcarrier.lastbatch(); // finish feeding eye patch data	
-		} 
+		// if(RAWDATA){
+		// 	rawcarrier.lastbatch(); // finish feeding eye patch data	
+		// } 
 		resultcarrier.start(true);// one shot
 		// updatePerformance(weightederr); // update performance record on the server
 		workerlog[sunbatchid+'_'+sunhitid] = true;
@@ -2632,7 +2468,7 @@ function updatePerformance(meanerr){
 function monitorDownload(){
 	var s = resultcarrier.progress();
 	var sraw = {"status":"Finished", "percent":100};
-	if (RAWDATA) sraw = rawcarrier.progress();
+	// if (RAWDATA) sraw = rawcarrier.progress();
 	drawslider(100, Math.min(s.percent, sraw.percent)); // draw progress bar
 	// console.log(s);
 	if (s.status != 'Finished' || sraw.status != 'Finished' || scoreUpdate != true){
