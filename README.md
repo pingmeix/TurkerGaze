@@ -30,7 +30,7 @@ If you find TurkerGaze useful in your research, please consider citing:
 0. User your own images
 	0. Create a .json object with two fields: 'gaze' and 'memory' like './demo/imglist.json'. 'gaze' contains the images that you want to present for free-viewing, and 'memory' contains images for the memory test.
 	0. Pass the path of this .json file by url parameter 'imglist'. For example, http://isun.cs.princeton.edu/TurkerGaze/pugazetrackr.html?imglist=your_imglist_url
-	0. Run the task.
+	0. Run the task!
 
 
 ### License
