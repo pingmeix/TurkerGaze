@@ -173,7 +173,6 @@ var numimg = 0, numpnt = 0, numabtest = 0;
 function grabimgs(){
 	// grab multimedia data
 	$.getJSON(imglisturl, function(data) {
-		// console.log("Imglist: " + JSON.stringify(data));
 		gazeimglist = data.gaze;
 		memoryimglist = data.memory;
 		videolist = data.video;
@@ -455,21 +454,7 @@ function grabimgs(){
 				;
 			}
 		}
-		/*
-		// sanity check of procedure
-		var paracheck = true, configmsg; 
-		if(sequenceType.length != sequenceTag.length) paracheck = false;
-		for(var i = 0; i < sequenceType.length; i++){
-			if(sequenceTag[i] == 0 && sequenceType[i] != 0) { paracheck = false; configmsg = "type & tag length not matching"; break;}
-			if(sequenceType[i] < 0 || sequenceType >= typeset.length) { paracheck = false; configmsg = "unrecognized type"; break;}
-			if(sequenceTag[i] < 0 || sequenceTag[i] >= tagset.length) { paracheck = false; configmsg = "unrecognized tag"; break;}
-		}
-		if(paracheck == false) {
-			alert('incorrect experiment configuration: ' + configmsg);
-			noHITinDB = true; 
-			return;
-		}
-		*/
+		
 		for(var i = 0; i < sequenceType.length; i++){
 			// if(sequenceType[i] == 1) numimg++; // image
 			if(sequenceType[i] == 0 && sequenceTag[i] == 0) numpnt++; // point
@@ -500,10 +485,12 @@ var time = new Date().getTime();
 var tmpname = "anonymous"+time;
 var workerid = getURLParameter('workerId', tmpname); // required
 var assignmentid = getURLParameter('assignmentId', 'notAMturkHIT');
+
+/*
 var workerdir = "../workerinfo/";
 var workerlogname = workerid + "_log.json";
 var workerlog = {};
-
+*/
 /**********************************************************************/
 /*
 var jqgetlog = $.getJSON(workerdir+workerlogname, function(data) {
@@ -527,11 +514,33 @@ var jqgetlog = $.getJSON(workerdir+workerlogname, function(data) {
 var sunbatchid = getURLParameter('sunbatchid', 'batch20150410_WhacMIT1003_level2');
 var hitlisturl = 'http://isun.cs.princeton.edu/mturkhit/' + sunbatchid  + '/hitlist.json';
 var sunhitid = null;
-var sunhitdir, imglisturl, hitname, save_fname_result, save_fname_raw, save_fnmae_err
+var sunhitdir, imglisturl, hitname;
+// var save_fname_result, save_fname_raw, save_fnmae_err
 
 
 $.getJSON(hitlisturl, function(data) {
 	var hitlist = data.hit;	
+	sunhitid = hitlist[Math.floor((Math.random() * hitlist.length))];
+	sunhitdir = "../mturkhit/" + sunbatchid + '/' + sunhitid + '/rawdata/';
+
+	imglisturl = 'http://isun.cs.princeton.edu/mturkhit/' + sunbatchid  + '/' + sunhitid + '/imglist.json';
+
+	var time = new Date().getTime();
+	hitname = sunhitid + '_' + assignmentid + '_' + workerid + '_' + time.toString();
+
+	save_fname_result = hitname + '_result'; // datafile: gaze prediction results
+	save_fname_raw = hitname + '_data'; // datafile: raw eye patch data
+	save_fnmae_err = hitname + '_status'; // datafile: error messages
+
+	postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'start;');
+
+	$.get('http://jsonip.com/', function(r){ 
+	  IPaddress = r.ip; 
+	  postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'IPaddress'+IPaddress+';');
+	});
+	grabimgs();
+
+	/*
 	// load worker's job history
 	$.getJSON(workerdir+workerlogname, function(data) {
 		// check whether there are hits available
@@ -550,26 +559,15 @@ $.getJSON(hitlisturl, function(data) {
 		if (sunhitid == null){ // no HIT available for this worker
 			$("#instrmsgP").html(instrMsg.nohit);
 		}else{
-			sunhitdir = "../mturkhit/" + sunbatchid + '/' + sunhitid + '/rawdata/';
-			imglisturl = 'http://isun.cs.princeton.edu/mturkhit/' + sunbatchid  + '/' + sunhitid + '/imglist.json';
-
-			var time = new Date().getTime();
-			hitname = sunhitid + '_' + assignmentid + '_' + workerid + '_' + time.toString();
-
-			save_fname_result = hitname + '_result'; // datafile: gaze prediction results
-			save_fname_raw = hitname + '_data'; // datafile: raw eye patch data
-			save_fnmae_err = hitname + '_status'; // datafile: error messages
-
-			postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'start;');
-
-			$.get('http://jsonip.com/', function(r){ 
-			  IPaddress = r.ip; 
-			  postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'IPaddress'+IPaddress+';');
-			});
-			grabimgs();
+			
 		}
 
 	});
+	*/
+
+
+
+
 })
 .fail(function() {
 	$("#instrmsgP").html(instrMsg.nohit);
