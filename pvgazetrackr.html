@@ -136,10 +136,10 @@
 <script src="./clmtrackr/js/Stats.js"></script>
 <!-- sound effect -->
 <script src="./js/howler.min.js"></script>	
-<!-- setting and parameters -->
-<script src="./config/parameter.js"></script>
 <!-- utility functions -->
 <script src="./js/utils.js"></script>
+<!-- setting and parameters -->
+<script src="./config/parameter.js"></script>
 <!-- experiment setting -->
 <!-- <script src="./config/exprmtconfig.js"></script> -->
 <script src="./config/hitconfig.js"></script>
@@ -342,7 +342,7 @@ function preloadIcons(idx){
 }
 function onFailLoadImg(msg){
 	$("#instrmsgP").html(instrMsg.fail2loadimg);
-	postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'failtoloadgame: ' + msg + ';');
+	// postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'failtoloadgame: ' + msg + ';');
 }
 // get user media
 function hasGetUserMedia() {
@@ -505,7 +505,7 @@ function setUpCanvas(){
 
 // enter full screen
 function enterFullScreen(){
-	postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'click enter full screen;');
+	// postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'click enter full screen;');
 	ctx.fillStyle = fsmsgBckColor;
 	ctx.fillRect(0,0,sW,sH);
 	$('#fullscreen').show();
@@ -537,7 +537,7 @@ function enterFullScreen(){
 			$(document).unbind(); // unbind key press event
 			KEY_DOWN = true;
 			toggleFullScreen();
-			postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'press q to quit;');
+			// postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'press q to quit;');
 			restartTask(instrMsg.restartwork);
 		}
 	});
@@ -554,7 +554,7 @@ function checkFullscreenOn(){
 		cancelRequestAnimFrame(checkFullscreenOnRequest);
 		if (!EXPERIMENT_END && !KEY_DOWN){
 			// alert("Please keep your browser in fullscreen mode.")
-			postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'quit fullscreen;');
+			// postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'quit fullscreen;');
 			restartTask(instrMsg.fullscreen); // restart the whole experiment
 		}else{
 			KEY_DOWN = false;
@@ -691,7 +691,7 @@ function startTracking(){
 
 // restart facial landmark tracking
 function restartTracking(){
-	postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'click restart tracking;');
+	// postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'click restart tracking;');
 	ctrackr.reset();
 }
 
@@ -807,7 +807,7 @@ function checkLdmkValidity(position){
 function startTask(){
 	RESTART = false;
 	$('#tipsdiv').hide();
-	postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'click start task;');
+	// postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'click start task;');
 	var positions = ctrackr.getCurrentPosition();
 	if (checkLdmkValidity(positions) != ''){return;} 
 	// hide cursor
@@ -1068,7 +1068,7 @@ function display(sequence){
 	}
 	switch(entry.type){
 		case "point":
-			postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'calibration point, x:' + entry.location[0] + ' y:' + entry.location[1] + ';');
+			// postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'calibration point, x:' + entry.location[0] + ' y:' + entry.location[1] + ';');
 
 			var step = 30; // step size (ms)
 			var duration = sequence[curposdisplay].duration+sequence[curposdisplay+1].duration;
@@ -1094,7 +1094,7 @@ function display(sequence){
 			});
 			break;
 		case "image":
-			postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'view image;');
+			// postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'view image;');
 			ctx.fillStyle = imgBckColor;
 			ctx.fillRect(0,0,sW,sH);
 			var idx;
@@ -1112,7 +1112,7 @@ function display(sequence){
 			setTimeout(function(){display(sequence);}, entry.duration);
 			break;
 		case "video":
-			postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'watch video;');
+			// postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'watch video;');
 			ctx.fillStyle = imgBckColor;
 			ctx.fillRect(0,0,sW,sH);
 			
@@ -1169,7 +1169,7 @@ function display(sequence){
 					ABTEST = false;
 					// check whether all pigs are cleared
 					if (cntPig > 0){ // restart experiment: show message
-						postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'fail pig test;');
+						// postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'fail pig test;');
 						// alert('Time Out!');
 						restartTask(instrMsg.timeout);
 					}
@@ -1221,7 +1221,7 @@ function checkMoleTimeout(start_time){
 		MOLETEST = false;
 		// check whether all pigs are cleared
 		if (cntmole > 0){ // restart experiment: show message
-			postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'fail whac-a-mole test;');
+			// postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'fail whac-a-mole test;');
 			// alert('Time Out!');
 			DISPLAYON = false;
 			restartTask(instrMsg.moletimeout);
@@ -1257,7 +1257,7 @@ function hitmole(){
 		airmole.remove();
 		cntmole--;
 		moleNumber.updateNum(cntmole);
-		postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'hit one mole;');
+		// postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'hit one mole;');
 		if (cntmole > 0){
 			startwhacamole();
 		}else{
@@ -1453,7 +1453,7 @@ function checkabtest(){
 }
 // angry bird: kill pig test
 function startabtest(){
-	postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'start killing pig test;');
+	// postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'start killing pig test;');
 	ABTEST = true;
 	cntPig = numPig;
 	drawPig();
@@ -1464,7 +1464,7 @@ function drawPig(){
 	ctx.fillRect(0,0,sW,sH);
 	ctx.beginPath();
 	var loc = [Math.random()*0.7+0.15, Math.random()*0.7+0.15]; // random position
-	postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'a new pig, x:' + loc[0] + ' y:' + loc[1] + ';');
+	// postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'a new pig, x:' + loc[0] + ' y:' + loc[1] + ';');
 	var t = new Date().getTime();
 	var item = {"start_time":t, "location": loc};
 	pigQueue.push(item);
@@ -1514,7 +1514,7 @@ function VideoRecorder(mediaStream,width,height) {
             	if (cntFPS == numFPSframe) {
             		avgFPS /= numFPSframe;
             		if(avgFPS < minFPS){
-            			postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, instrMsg.computertooslow);
+            			// postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, instrMsg.computertooslow);
 						restartTask(instrMsg.computertooslow);
 						return;
             		} // fps is too low
@@ -1544,7 +1544,7 @@ function VideoRecorder(mediaStream,width,height) {
 				}else{
 					alert(msg);
 				}
-				postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, msg + ';');
+				// postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, msg + ';');
 				restartTask(instrMsg.keepstill);
 				return;
 			}
@@ -1565,7 +1565,7 @@ function VideoRecorder(mediaStream,width,height) {
 					// console.log(delta/stable_idx.length)
 					prev_stable_pos = null;
 					alert(instrMsg.headmove);
-					postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'abrupt head movement;');
+					// postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'abrupt head movement;');
 					restartTask(instrMsg.keepstill);
 					return;
 				}
@@ -1677,7 +1677,7 @@ function VideoRecorder(mediaStream,width,height) {
 								}
 
 								if(hitcountdown <= 0){
-									postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'kill one pig;');
+									// postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'kill one pig;');
 									cntPig--;
 									item = pigQueue.pop();
 									var t = new Date().getTime();
@@ -2027,7 +2027,7 @@ function getPosition(event){
 }
 
 function startMemTest(){
-	postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'start memory test;');
+	// postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'start memory test;');
 	$('#startmemtestButton').hide();
 	$("#fsoverlay" ).fadeTo( 0.3 , 0.2, function() {
 		$("#fsoverlay").fadeTo(0, 1.0);
@@ -2055,7 +2055,7 @@ function memtestcountdown(t){
 }
 
 function memorytestpreview(){
-	postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'memory test preview;');
+	// postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'memory test preview;');
 	MEMTESTPREVIEW = true;
 	var str = "Part " + numpart + "/" + numpart + ": Relax, you can move your head now. Next, you will see 15 photos: 3 of them you already saw, and 12 new ones. Pigs are hiding behind the 3 photos you already saw -- find the pigs by clicking on them.";
 	$("#instrmsgP").html(str);
@@ -2091,7 +2091,7 @@ function memorytestpreview(){
 }
 
 function submitMemTest(){
-	postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'complete memory test;');
+	// postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'complete memory test;');
 	$('#instrmsgP').hide();
 	var t = new Date().getTime();
 	var item = {'action': 'submit','time':t};
@@ -2581,7 +2581,7 @@ function getNextFrame(){
 }
 
 function quitfullscreen(){
-	postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'quit full screen;');
+	// postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'quit full screen;');
 	if(window.innerHeight == screen.height){
 		toggleFullScreen();
 	}

@@ -1,34 +1,4 @@
-// -------------------- media files -------------------- 
-
-// images as calibration points
-
-
 // -------------------- experiment parameter settings -------------------- 
-
-/*
-switch(numpts){
-	case 9:
-	CalbrPoints = [[0.500,0.500],[0.050,0.050],[0.950,0.500],[0.500,0.950],[0.950,0.050],[0.050,0.500],[0.950,0.950],[0.500,0.050],[0.050,0.950],[0.500,0.500],
-					[0.500,0.500],[0.050,0.500],[0.500,0.950],[0.950,0.500],[0.050,0.050],[0.950,0.050],[0.050,0.950],[0.500,0.050],[0.950,0.950],[0.500,0.500],
-					[0.500,0.500],[0.950,0.950],[0.050,0.950],[0.950,0.500],[0.050,0.050],[0.950,0.050],[0.050,0.500],[0.500,0.950],[0.500,0.050],[0.500,0.500],
-					[0.500,0.500],[0.050,0.050],[0.950,0.500],[0.500,0.950],[0.950,0.050],[0.050,0.500],[0.950,0.950],[0.500,0.050],[0.050,0.950],[0.500,0.500]];
-	break;	
-	case 13:
-	default:
-	CalbrPoints = [[0.500,0.500],[0.050,0.050],[0.950,0.500],[0.275,0.275],[0.500,0.950],[0.950,0.050],[0.275,0.725],[0.050,0.500],[0.950,0.950],[0.725,0.725],[0.500,0.050],[0.050,0.950],[0.725,0.275],[0.500,0.500],
-					[0.500,0.500],[0.050,0.500],[0.500,0.950],[0.275,0.275],[0.950,0.500],[0.050,0.050],[0.275,0.725],[0.950,0.050],[0.050,0.950],[0.725,0.725],[0.500,0.050],[0.950,0.950],[0.725,0.275],[0.500,0.500],
-					[0.500,0.500],[0.950,0.950],[0.050,0.950],[0.275,0.275],[0.950,0.500],[0.050,0.050],[0.275,0.725],[0.950,0.050],[0.050,0.500],[0.725,0.725],[0.500,0.950],[0.500,0.050],[0.725,0.275],[0.500,0.500],
-					[0.500,0.500],[0.050,0.050],[0.950,0.500],[0.275,0.275],[0.500,0.950],[0.950,0.050],[0.275,0.725],[0.050,0.500],[0.950,0.950],[0.725,0.725],[0.500,0.050],[0.050,0.950],[0.725,0.275],[0.500,0.500]];
-	break;
-}
-var points = new Array(CalbrPoints.length*2);
-for(var i = 0; i < CalbrPoints.length; i++){
-	points[2*i] = CalbrPoints[i]; // idle
-	points[2*i+1] = CalbrPoints[i]; // busy
-}
-*/
-
-// procedure: meta
 function countdownMsg(idx){
 	return "<span style='color: #3399FF; font-size: 65px'>" + idx.toString() + "</span>";
 }
@@ -168,7 +138,6 @@ function playvideos(b, c){
 }
 
 // -------------------- load HIT settings -------------------- 
-
 var numimg = 0, numpnt = 0, numabtest = 0;
 function grabimgs(){
 	// grab multimedia data
@@ -284,9 +253,6 @@ function grabimgs(){
 			}
 			
 			if(memoryimglist == undefined || memoryimglist.length < numgrids[0]*numgrids[1] - numshown){
-				// alert('Not enough image for memory game.');
-				// noHITinDB = true; 
-				// return;
 				MemTest = false;
 				imgpaths = new Array(numimg);
 			}else{
@@ -479,44 +445,16 @@ function grabimgs(){
 	});
 }
 
-// -------------------- worker's working history -------------------- 
-// Amazon MTurk
 var time = new Date().getTime();
 var tmpname = "anonymous"+time;
 var workerid = getURLParameter('workerId', tmpname); // required
 var assignmentid = getURLParameter('assignmentId', 'notAMturkHIT');
-
-/*
-var workerdir = "../workerinfo/";
-var workerlogname = workerid + "_log.json";
-var workerlog = {};
-*/
-/**********************************************************************/
-/*
-var jqgetlog = $.getJSON(workerdir+workerlogname, function(data) {
-	if (data != null && data[sunbatchid+'_'+sunhitid] == true){ // the worker has worked on this HIT before
-		// not allowed to do twice
-		alert('you have played this!')
-		$("#instrmsgP").html(instrMsg.nohit);
-
-	}else{
-		workerlog = data;
-		grabimgs();
-	}
-})
-.fail(function() {
-	grabimgs();
-});
-*/
-/**********************************************************************/
 
 // load hitlist of the batch
 var sunbatchid = getURLParameter('sunbatchid', 'batch20150410_WhacMIT1003_level2');
 var hitlisturl = 'http://isun.cs.princeton.edu/mturkhit/' + sunbatchid  + '/hitlist.json';
 var sunhitid = null;
 var sunhitdir, imglisturl, hitname;
-// var save_fname_result, save_fname_raw, save_fnmae_err
-
 
 $.getJSON(hitlisturl, function(data) {
 	var hitlist = data.hit;	
@@ -528,45 +466,10 @@ $.getJSON(hitlisturl, function(data) {
 	var time = new Date().getTime();
 	hitname = sunhitid + '_' + assignmentid + '_' + workerid + '_' + time.toString();
 
-	save_fname_result = hitname + '_result'; // datafile: gaze prediction results
-	save_fname_raw = hitname + '_data'; // datafile: raw eye patch data
-	save_fnmae_err = hitname + '_status'; // datafile: error messages
-
-	postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'start;');
-
 	$.get('http://jsonip.com/', function(r){ 
 	  IPaddress = r.ip; 
-	  postErrMsg(sunhitdir, save_fnmae_err, upload_url_err, 'IPaddress'+IPaddress+';');
 	});
 	grabimgs();
-
-	/*
-	// load worker's job history
-	$.getJSON(workerdir+workerlogname, function(data) {
-		// check whether there are hits available
-		workerlog = data;
-		for(var i = 0; i < hitlist.length; i++){
-			if(workerlog[sunbatchid+'_'+hitlist[i]] == undefined){
-				sunhitid = hitlist[i];
-				return;
-			}
-		}
-	})
-	.fail(function() { // first time
-		sunhitid = hitlist[Math.floor((Math.random() * hitlist.length))];
-	})
-	.always(function(){
-		if (sunhitid == null){ // no HIT available for this worker
-			$("#instrmsgP").html(instrMsg.nohit);
-		}else{
-			
-		}
-
-	});
-	*/
-
-
-
 
 })
 .fail(function() {
