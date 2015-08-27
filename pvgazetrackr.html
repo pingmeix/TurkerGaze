@@ -79,81 +79,47 @@
 <!-- icons for tips -->
 <div id="tipsdiv" style="display: none;"></div>
 
-<!-- basic information -->
-<div id="basicinfoformbg" style="display: none;">
-	<div id="basicinfoform">
-		Please indicate your age and gender, you only need to fill in this form once and your information will be anonymized and used for scientific research only. 
-		</br></br>
-		What is your age: 
-		<input id="inputage" type="text" value="">
-		</br>
-		</br>
-		Gender:
-		<input type="radio" name="sex" value="male">M
-		<input type="radio" name="sex" value="female">F
-		</br></br>
-
-		Ethnicity: 
-		<select id="inputrace">
-			<option value=""></option>
-		  <option value="White">White</option>
-		  <option value="Hispanic">Hispanic or Latino</option>
-		  <option value="Black">Black or African American</option>
-		  <option value="Native">Native American or American Indian</option>
-		  <option value="Asian">Asian / Pacific Islander</option>
-		  <option value="Other">Other</option>
-		</select>
-		</br></br></br>
-		<button id='workerinfoBtton' onclick="submitinfo()">Submit</button>
-		</br></br></br>
-		<span style="font-size:12px;">By playing this game, you are participating in a scientific study for eye-tracking prediction by students from Princeton University. Your participation in this research is voluntary. You may decline further participation, at any time, without adverse consequences. Your anonymity is assured: the images of your eyes seen from the webcam will not be released, and all information will be anonymized.</span>
-	</div>
-</div>
-<!-- </div> -->
-
 <!-- js library -->
-<script src="./js/jquery-1.11.0.min.js"></script>
-<script src="./js/json.js"></script>
-<script src="./js/jsfeat.js"></script>
+<script src="./js/lib/jquery-1.11.0.min.js"></script>
+<script src="./js/lib/json.js"></script>
+<!-- vision js -->
+<script src="./js/cv/jsfeat.js"></script>
 <!-- test webbrowser -->
-<script type="text/javascript" src="./js/bowser.min.js"></script>
+<script src="./js/lib/bowser.min.js"></script>
 <!-- copy address to clipboard -->
-<script type="text/javascript" src="./js/jquery.zclip.js"></script>
+<script src="./js/lib/jquery.zclip.js"></script>
 <!-- clm facial landmark tracker -->
-<script src="./clmtrackr/js/utils.js"></script>
-<script src="./clmtrackr/js/numeric-1.2.6.min.js"></script>
-<script src="./clmtrackr/js/mosse.js"></script>
-<script src="./clmtrackr/js/left_eye_filter.js"></script>
-<script src="./clmtrackr/js/right_eye_filter.js"></script>
-<script src="./clmtrackr/js/nose_filter.js"></script>
-<script src="./clmtrackr/models/model_pca_20_svm.js"></script>
-<script src="./clmtrackr/js/clmpm.js"></script>
-<script src="./clmtrackr/js/ccv.js"></script>
-<script src="./clmtrackr/js/cascade.js"></script>
-<script src="./clmtrackr/js/svmfilter_webgl.js"></script>
-<script src="./clmtrackr/js/svmfilter_fft.js"></script>
-<script src="./clmtrackr/js/mossefilter.js"></script>
-<script src="./clmtrackr/js/Stats.js"></script>
+<script src="./js/lib/clmtrackr/js/utils.js"></script>
+<script src="./js/lib/clmtrackr/js/numeric-1.2.6.min.js"></script>
+<script src="./js/lib/clmtrackr/js/mosse.js"></script>
+<script src="./js/lib/clmtrackr/js/left_eye_filter.js"></script>
+<script src="./js/lib/clmtrackr/js/right_eye_filter.js"></script>
+<script src="./js/lib/clmtrackr/js/nose_filter.js"></script>
+<script src="./js/lib/clmtrackr/models/model_pca_20_svm.js"></script>
+<script src="./js/lib/clmtrackr/js/clmpm.js"></script>
+<script src="./js/lib/clmtrackr/js/ccv.js"></script>
+<script src="./js/lib/clmtrackr/js/cascade.js"></script>
+<script src="./js/lib/clmtrackr/js/svmfilter_webgl.js"></script>
+<script src="./js/lib/clmtrackr/js/svmfilter_fft.js"></script>
+<script src="./js/lib/clmtrackr/js/mossefilter.js"></script>
+<script src="./js/lib/clmtrackr/js/Stats.js"></script>
 <!-- sound effect -->
-<script src="./js/howler.min.js"></script>	
+<script src="./js/lib/howler.min.js"></script>	
+<!-- svg -->
+<script src="./js/lib/snap.svg-min.js"></script>
+
 <!-- utility functions -->
 <script src="./js/utils.js"></script>
 <!-- setting and parameters -->
-<script src="./config/parameter.js"></script>
-<!-- experiment setting -->
-<!-- <script src="./config/exprmtconfig.js"></script> -->
-<script src="./config/hitconfig.js"></script>
+<script src="./js/parameter.js"></script>
 <!-- feature extraction -->
-<script src="./js/extractHistFeature.js"></script>
+<script src="./js/cv/extractHistFeature.js"></script>
 <!-- optical flow for stabilization -->
-<script src="./js/OpticalFlow.js"></script>
+<script src="./js/cv/OpticalFlow.js"></script>
 <!-- regression model -->
-<script src="./js/RidgeRegression.js"></script>
-<script src="./js/MLModel.js"></script>
-<!-- send data to server -->
-<script src="./js/transmitter.js"></script>
-<!-- svg -->
-<script src="./js/snap.svg-min.js"></script>
+<script src="./js/ml/RidgeRegression.js"></script>
+<script src="./js/ml/MLModel.js"></script>
+
 <!-- preload font -->
 <script>
 var fontnamelist = ['lcd', 'digital', 'zorque'];
@@ -281,7 +247,6 @@ function checkOKLoading(){
 			}else if(whachit){
 				preloadHitImgs(0);
 			}
-			
 		}
 	}
 }
@@ -377,9 +342,8 @@ function checkFontPreloader(){
 }
 
 function getMedia(){
-	// instruction: allow camera access
-	var str = instrMsg.camaccess +'.</br></br><span style="font-size:12px;">'+legalStatement+'</span>';
-	$("#warningP").html(str);
+	// instruction: get camera access
+	$("#warningP").html(instrMsg.camaccess);
 	$('#warningP').show();
 	if (hasGetUserMedia()) {
 		navigator.getUserMedia(getUserMediaConstraints, function(stream) {
@@ -398,11 +362,10 @@ function getMedia(){
 	        	function(){$(this).css({'color':'#eeeeee','background-color':'#29b6f6'});},
 	        	function(){$(this).css({'color':'#424242','background-color':'#03a9f4'});}
 			);
-			// sound
-		    $("#warningP").html('Please turn on the sound for better experience.<br><br>'+'<span style="font-size:12px;">'+legalStatement+'</span>');
+			// turn on speaker
+		    $("#warningP").html('Please turn on the sound for better experience.');
 
 	    }, function() {
-	        // alert('Webcam access is denied.');
 	        $("#warningP").html(instrMsg.refreshcamaccess);
 	    });
 	} else {
@@ -424,7 +387,7 @@ $(document).ready(function() {
 		$("#copylinkButton").css({"top":"40%","left":"20%"});
 		$("#copylinkButton").show();
 		$("#copylinkButton").zclip({
-		path: "./js/ZeroClipboard.swf",
+		path: "./js/lib/ZeroClipboard.swf",
 		copy: function(){
 				return document.URL;
 			}
@@ -694,7 +657,6 @@ function restartTracking(){
 function displayStreamingVideo(){
 	displayStreamRequest = requestAnimFrame(displayStreamingVideo);
 	// flip the strem video and display
-
 	imgCanvasCtx.save(); // Save the current state
     imgCanvasCtx.scale(-1, 1); // Set scale to flip the image
     imgCanvasCtx.drawImage(streamVideo, -showW, 0, showW, showH); // draw the image
@@ -706,13 +668,10 @@ function displayStreamingVideo(){
 // display facial landmarks tracking results
 function facialLdmkTrackingDisplay(){
 	displayLdmkRequest = requestAnimFrame(facialLdmkTrackingDisplay);
-
-	// imgCanvasCtx.drawImage(streamVideo,0,0,showW,showH); // display the video stream
 	trackCanvasCtx.drawImage(streamVideo, 0, 0, trckW, trckH) // rescale the video stream
 	ctrackr.trackFrame(trackCanvas); // tracking
 	overlayCtx.clearRect(0, 0, showW, showH); // tracking results
 	if(ctrackr.getCurrentPosition()){
-		// ctrackr.draw(overlay);
 		ctrackr.flipdraw(overlay, showW, showH);
 	}
 	// status message
@@ -997,9 +956,7 @@ function drawstabilization(){
 			savebfloc[jittercnter*2+1] = bfpos[0][1];
 
 			jittercnter++;
-		}
-
-		
+		}		
 	}
 }
 function bilateralFilter(queue, cnt, para){
@@ -1138,9 +1095,6 @@ function display(sequence){
 			ctx.fillStyle = fsmsgBckColor;
 			ctx.fillRect(0,0,sW,sH);
 			showInstrMsg(entry.content, "#instrmsgP", sW, sH-100);
-			// if(entry.content.search("</br>")){
-			// 	showInstrMsg(entry.content, "#instrmsgP", $(window).width(), $(window).height()-100);
-			// }else{}
 			curposdisplay++;
 			setTimeout(function(){display(sequence);}, entry.duration);
 			break;

@@ -1,4 +1,4 @@
-
+/*-------------------- get parameter from URL --------------------*/
 function getURLParameter(VarSearch, defaultval){
     var SearchString = window.location.search.substring(1);
     SearchString = SearchString.replace(/\%22/g, '"').replace(/'/g,"%27"); // url decoder
@@ -12,22 +12,6 @@ function getURLParameter(VarSearch, defaultval){
     }
   return defaultval;
 }
-
-
-// function URLdecode() {
-//   var obj = document.getElementById('dencoder');
-//   var encoded = obj.value;
-//   obj.value = decodeURIComponent(encoded.replace(/\+/g,  " "));
-// }
-
-// djb2Code = function(str){
-//     var hash = 5381;
-//     for (i = 0; i < str.length; i++) {
-//         char = str.charCodeAt(i);
-//         hash = ((hash << 5) + hash) + char; /* hash * 33 + c */
-//     }
-//     return hash;
-// }
 
 /*-------------------- monitor & download --------------------*/
 // download data to local file
@@ -124,7 +108,6 @@ function drawCircleLoop(w, h, ctx, x, y, r_set, bckcolor, color, step, idx, call
     }, step);
 }
 
-
 function drawDynamicRing(ctx, x, y, bckcolor, color, duration, start_r, end_r, step, callback){
     var num = Math.round(duration/step);
     var r_set = new Array(num);
@@ -172,7 +155,6 @@ function drawRoundCornerRect(ctx, x, y, w, h, color, width){
     ctx.stroke();
     ctx.lineJoin = 'miter';
 }
-
 
 // get coordinates of grids
 function getgridloc(x, y, size, grids, spacing){
@@ -288,7 +270,7 @@ var instrMsg = {
     "loadimg": "LOADING HIT IMAGES...",
     "loadpig": "LOADING EVIL PIGS...",
     "webbrowser": "Please open this webpage by the Chrome web browser.",
-    "copylink": "Please copy this link by clicking the button below and then open the link in the Chrome web browser.",
+    "copylink": "Please open the link in the Chrome web browser.",
     "camaccess": "Please allow access to your camera.",
     "refreshcamaccess": "Please change the camera setting and reload the page.",
     "fullscreen": "Please keep your browser in fullscreen mode.",
